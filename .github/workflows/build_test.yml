@@ -1,0 +1,29 @@
+name: Build Test Artifact
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    name: Build Test Artifact
+    runs-on: ubuntu-latest
+
+    steps:
+          - name: Checkout Repository
+            uses: actions/checkout@v4.1.4
+          - name: Grant Execute Permission for gradlew
+            run: chmod +x gradlew
+          - name: Setup Java
+            uses: actions/setup-java@v4.2.1
+            with:
+              java-version: '8'
+              distribution: 'zulu'
+              cache: gradle
+          - name: Execute Gradle build
+            run: ./gradlew build
+          - name: Upload Build Artifacts
+            uses: actions/upload-artifact@v4.3.3
+            with:
+              name: ForgeGradle-2.4.${{ github.run_number}}
+              path: build/libs
