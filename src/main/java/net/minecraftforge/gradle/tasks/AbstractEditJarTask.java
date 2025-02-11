@@ -195,7 +195,7 @@ public abstract class AbstractEditJarTask extends CachedTask
 
     /**
      * Checks whether the given entry should be treated as a source file
-     * <p> <p>
+     * <p>
      * This can be overridden to change the types your task treats as source files
      *
      * @param entry the entry to check

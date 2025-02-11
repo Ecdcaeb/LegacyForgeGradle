@@ -825,6 +825,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
             .weakValues()
             .build(
                     new CacheLoader<String, TokenReplacer>() {
+                        @NotNull
                         public TokenReplacer load(@NotNull String key)
                         {
                             return new TokenReplacer(replacer, key);
@@ -834,6 +835,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
             .weakValues()
             .build(
                     new CacheLoader<String, DelayedString>() {
+                        @NotNull
                         public DelayedString load(@NotNull String key)
                         {
                             return new DelayedString(CacheLoader.class, replacerCache.getUnchecked(key));
@@ -843,6 +845,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
             .weakValues()
             .build(
                     new CacheLoader<String, DelayedFile>() {
+                        @NotNull
                         public DelayedFile load(@NotNull String key)
                         {
                             return new DelayedFile(CacheLoader.class, project, replacerCache.getUnchecked(key));

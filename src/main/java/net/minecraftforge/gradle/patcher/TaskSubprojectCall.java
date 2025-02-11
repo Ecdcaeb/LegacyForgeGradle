@@ -70,7 +70,7 @@ class TaskSubprojectCall extends DefaultTask
                 thing = thing.replace(entry.getKey(), (String)entry.getValue());
             }
             
-            Files.write(thing, file, Constants.CHARSET);
+            Files.asCharSink(file, Constants.CHARSET).write(thing);
             initscripts.add(file);
         }
         
@@ -82,29 +82,29 @@ class TaskSubprojectCall extends DefaultTask
         getProject().getLogger().lifecycle("------------------------ ");
         
         // connect to project
-        ProjectConnection connection = GradleConnector.newConnector()
+        try (ProjectConnection connection = GradleConnector.newConnector()
                 .useGradleUserHomeDir(gradle.getGradleUserHomeDir())
                 .useInstallation(gradle.getGradleHomeDir())
                 .forProjectDirectory(getProjectDir())
-                .connect();
-        
-        //get args
-        ArrayList<String> args = new ArrayList<>(5);
-        args.addAll(Splitter.on(' ').splitToList(getCallLine()));
+                .connect()) {
 
-        for (File f : initscripts)
-        {
-            args.add("-I" + f.getCanonicalPath());
+            //get args
+            ArrayList<String> args = new ArrayList<>(5);
+            args.addAll(Splitter.on(' ').splitToList(getCallLine()));
+
+            for (File f : initscripts) {
+                args.add("-I" + f.getCanonicalPath());
+            }
+
+            // build
+            connection.newBuild()
+                    .setStandardOutput(System.out)
+                    .setStandardInput(System.in)
+                    .setStandardError(System.err)
+                    .withArguments(args.toArray(new String[0]))
+                    .setColorOutput(false)
+                    .run();
         }
-        
-        // build
-        connection.newBuild()
-                .setStandardOutput(System.out)
-                .setStandardInput(System.in)
-                .setStandardError(System.err)
-                .withArguments(args.toArray(new String[0]))
-                .setColorOutput(false)
-                .run();
         
         getProject().getLogger().lifecycle("------------------------ ");
         getProject().getLogger().lifecycle("------END-SUB-CALL------ ");

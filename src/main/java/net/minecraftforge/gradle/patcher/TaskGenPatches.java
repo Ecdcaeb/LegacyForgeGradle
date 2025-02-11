@@ -204,7 +204,7 @@ class TaskGenPatches extends DefaultTask
             String olddiff = "";
             if (patchFile.exists())
             {
-                olddiff = Files.toString(patchFile, Charsets.UTF_8);
+                olddiff = Files.asCharSource(patchFile, Charsets.UTF_8).read();
             }
 
             if (!olddiff.equals(unidiff))
@@ -212,7 +212,7 @@ class TaskGenPatches extends DefaultTask
                 getLogger().debug("Writing patch: {}", patchFile);
                 patchFile.getParentFile().mkdirs();
                 Files.touch(patchFile);
-                Files.write(unidiff, patchFile, Charsets.UTF_8);
+                Files.asCharSink(patchFile, Charsets.UTF_8).write(unidiff);
             }
             else
             {

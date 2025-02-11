@@ -34,8 +34,8 @@ import java.util.zip.*;
  */
 public class TestConstants implements UsesTemporaryFiles
 {
-    private static String STRING_TO_HASH = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    private static String EXPECTED_STRING_HASH = "437bba8e0bf58337674f4539e75186ac";
+    private static final String STRING_TO_HASH = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private static final String EXPECTED_STRING_HASH = "437bba8e0bf58337674f4539e75186ac";
 
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();

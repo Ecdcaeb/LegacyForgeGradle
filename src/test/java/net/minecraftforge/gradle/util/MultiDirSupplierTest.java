@@ -61,7 +61,7 @@ public class MultiDirSupplierTest
             int fileNum = rand.nextInt(9) + 1; // 0-10
             for (int j = 0; j < fileNum; j++)
             {
-                File f = File.createTempFile(""+j + "tmp-", END, dir);
+                File f = File.createTempFile(j + "tmp-", END, dir);
                 expectedFiles.put(dir, getRelative(dir, f));
             }
         }

@@ -45,7 +45,7 @@ public class CacheContainer
     private static final LoadingCache<Class<?>, CacheContainer> pool = CacheBuilder.newBuilder()
             .build(
                     new CacheLoader<Class<?>, CacheContainer>() {
-                        @Override
+                        @NotNull@Override
                         public CacheContainer load(@NotNull Class<?> key) throws Exception
                         {
                             return new CacheContainer(key);

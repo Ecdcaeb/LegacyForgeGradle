@@ -23,6 +23,7 @@ import static net.minecraftforge.gradle.common.Constants.*;
 import static net.minecraftforge.gradle.user.UserConstants.*;
 
 import net.minecraftforge.gradle.user.UserVanillaBasePlugin;
+import net.minecraftforge.gradle.util.Utils;
 import net.minecraftforge.gradle.util.delayed.DelayedFile;
 import net.minecraftforge.gradle.util.json.JsonFactory;
 import net.minecraftforge.gradle.util.json.LiteLoaderJson;
@@ -81,11 +82,11 @@ public class LiteloaderPlugin extends UserVanillaBasePlugin<LiteloaderExtension>
 
         TaskContainer tasks = this.project.getTasks();
         final Jar jar = (Jar)tasks.getByName("jar");
-        jar.setExtension(MODFILE_EXTENSION);
-        jar.setBaseName(baseName);
+        Utils.setProperty(jar.getArchiveExtension(), MODFILE_EXTENSION);
+        Utils.setProperty(jar.getArchiveBaseName(), baseName);
 
         final Jar sourceJar = (Jar)tasks.getByName("sourceJar");
-        sourceJar.setBaseName(baseName);
+        Utils.setProperty(sourceJar.getArchiveBaseName(), baseName);
 
         makeTask(TASK_LITEMOD, LiteModTask.class);
     }
@@ -99,7 +100,7 @@ public class LiteloaderPlugin extends UserVanillaBasePlugin<LiteloaderExtension>
         // If user has changed extension back to .jar, write the ModType
         // manifest attribute
         final Jar jar = (Jar)this.project.getTasks().getByName("jar");
-        if ("jar".equals(jar.getExtension())) {
+        if ("jar".equals(jar.getArchiveExtension().getOrNull())) {
             Attributes attributes = jar.getManifest().getAttributes();
             attributes.putIfAbsent(MFATT_MODTYPE, MODSYSTEM);
         }

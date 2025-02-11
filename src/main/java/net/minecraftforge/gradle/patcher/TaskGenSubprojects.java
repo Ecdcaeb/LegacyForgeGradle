@@ -137,7 +137,7 @@ class TaskGenSubprojects extends DefaultTask
         if (end != -1)
             builder.append(resource.subSequence(end, resource.length()));
 
-        Files.write(builder.toString(), output, Constants.CHARSET);
+        Files.asCharSink(output, Constants.CHARSET).write(builder.toString());
     }
 
     private static void generateRootSettings(File output, Collection<String> projects) throws IOException
@@ -148,7 +148,7 @@ class TaskGenSubprojects extends DefaultTask
         Joiner.on("', '").appendTo(builder, projects);
         builder.append("'");
 
-        Files.write(builder.toString(), output, Constants.CHARSET);
+        Files.asCharSink(output, Constants.CHARSET).write(builder.toString());
     }
 
     private static void generateProjectBuild(URI workspace, File output, DevProject project) throws IOException
@@ -175,7 +175,7 @@ class TaskGenSubprojects extends DefaultTask
         // @formatter:on
 
         // write
-        Files.write(builder.toString(), output, Constants.CHARSET);
+        Files.asCharSink(output, Constants.CHARSET).write(builder.toString());
     }
 
     private static void lines(StringBuilder out, int indentLevel, CharSequence... lines)

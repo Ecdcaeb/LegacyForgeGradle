@@ -32,9 +32,13 @@ import org.gradle.api.logging.StandardOutputListener;
 
 import com.google.common.io.Files;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FileLogListenner implements StandardOutputListener, BuildListener
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileLogListenner.class);
+
     private final File out;
     private BufferedWriter writer;
     
@@ -45,24 +49,26 @@ public class FileLogListenner implements StandardOutputListener, BuildListener
         try
         {
             if (out.exists())
-                out.delete();
+                if (!out.delete()) LOGGER.error("Fail to delete file {}", file.getAbsoluteFile());
             else
-                out.getParentFile().mkdirs();
-            
-            out.createNewFile();
+                if (!out.getParentFile().mkdirs()) LOGGER.error("Fail to create dir {}", out.getParentFile());
+
+            if (!out.createNewFile()) LOGGER.error("Fail to create file {}", file.getAbsoluteFile());
             
             writer = Files.newWriter(out, Charset.defaultCharset());
         }
         catch (IOException e)
         {
-            e.printStackTrace();
+            LOGGER.error("Error when processing file ", e);
         }
     }
     
     @Override
     public void projectsLoaded(@NotNull Gradle arg0) {}
-    
+
     @Override
+    @SuppressWarnings("all")
+    @Deprecated // remove it when it removed
     public void buildStarted(@NotNull Gradle arg0) {}
 
     @Override
