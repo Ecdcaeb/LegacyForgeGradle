@@ -73,7 +73,7 @@ public class CacheCheckSpec implements Spec<Task>
                     return true;
                 }
 
-                String foundMD5 = Files.toString(CacheUtil.getHashFile(file), Charset.defaultCharset());
+                String foundMD5 = Files.asCharSource(CacheUtil.getHashFile(file), Charset.defaultCharset()).read();
                 String calcMD5 = CacheUtil.getHashes(field, container.inputList, task);
 
                 if (!calcMD5.equals(foundMD5))

@@ -1,22 +1,29 @@
-//buildscript {
-//    repositories {
-//        maven {
-//            url "https://plugins.gradle.org/m2/"
-//        }
-//    }
-//    dependencies {
-//        classpath "com.gradle.publish:plugin-publish-plugin:0.9.1"
-//        classpath 'nl.javadude.gradle.plugins:license-gradle-plugin:0.11.0'
-//        classpath 'org.ow2.asm:asm:6.2.1'
-//        classpath 'org.ow2.asm:asm-tree:6.2.1'
-//    }
-//}
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "com.gradle.publish:plugin-publish-plugin:0.9.1"
+        classpath 'nl.javadude.gradle.plugins:license-gradle-plugin:0.11.0'
+        classpath 'org.ow2.asm:asm:6.2.1'
+        classpath 'org.ow2.asm:asm-tree:6.2.1'
+    }
+}
 
-group = 'net.minecraftforge.gradle'
-version = 'CRL-2.4'
-archivesBaseName = 'ForgeGradle'
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'eclipse'
+apply plugin: 'maven-publish'
+apply plugin: "com.gradle.plugin-publish"
+apply plugin: 'license'
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+group = 'io.github.ecdcaeb'
+version = '0.2.3'
+archivesBaseName = 'LegacyForgeGradle'
+targetCompatibility = '1.8'
+sourceCompatibility = '1.8'
 
 repositories {
     mavenLocal()
@@ -104,10 +111,6 @@ dependencies {
     testCompile 'junit:junit:4.12'
 }
 
-tasks.register('wrapper', Wrapper) {
-    gradleVersion = '2.14'
-}
-
 sourceSets {
     main.compileClasspath += configurations.shade;
     main.runtimeClasspath += configurations.shade;
@@ -116,9 +119,9 @@ sourceSets {
 }
 
 compileJava {
-	options.deprecation = true
-	//options.compilerArgs += ["-Werror"]
-	//options.compilerArgs += ["-Werror", "-Xlint:unchecked"]
+    options.deprecation = true
+    //options.compilerArgs += ["-Werror"]
+    //options.compilerArgs += ["-Werror", "-Xlint:unchecked"]
 }
 
 processResources {
@@ -183,11 +186,11 @@ class PatchJDTClasses extends DefaultTask {
                                 if (insn.type == AbstractInsnNode.METHOD_INSN) {
                                     if (GET_CONTENTS.equals(insn.owner + '.' + insn.name + insn.desc)) {
                                         if (
-                                        resolve.instructions.get(x - 5).opcode == Opcodes.NEW &&
-                                                resolve.instructions.get(x - 4).opcode == Opcodes.DUP &&
-                                                resolve.instructions.get(x - 3).opcode == Opcodes.ALOAD &&
-                                                resolve.instructions.get(x - 2).opcode == Opcodes.INVOKESPECIAL &&
-                                                resolve.instructions.get(x - 1).opcode == Opcodes.ALOAD
+                                                resolve.instructions.get(x - 5).opcode == Opcodes.NEW &&
+                                                        resolve.instructions.get(x - 4).opcode == Opcodes.DUP &&
+                                                        resolve.instructions.get(x - 3).opcode == Opcodes.ALOAD &&
+                                                        resolve.instructions.get(x - 2).opcode == Opcodes.INVOKESPECIAL &&
+                                                        resolve.instructions.get(x - 1).opcode == Opcodes.ALOAD
                                         ) {
                                             resolve.instructions.set(resolve.instructions.get(x - 5), new InsnNode(Opcodes.NOP)); // NEW File
                                             resolve.instructions.set(resolve.instructions.get(x - 4), new InsnNode(Opcodes.NOP)); // DUP
@@ -237,7 +240,7 @@ task patchJDT(type: PatchJDTClasses) {
     configurations.shade.resolvedConfiguration.resolvedArtifacts.stream().filter { dep ->
         dep.name.equals('org.eclipse.jdt.core') || dep.name.equals('Srg2Source')
     }
-        .forEach { dep -> library dep.file }
+            .forEach { dep -> library dep.file }
     output file('build/patchJDT/patch_jdt.jar')
 }
 
@@ -247,12 +250,12 @@ jar {
     configurations.shade.each { dep ->
         /* I can use this again to find where dupes come from, so.. gunna just keep it here.
         logger.lifecycle(dep.toString())
-        project.zipTree(dep).visit { 
-            element -> 
+        project.zipTree(dep).visit {
+            element ->
                 def path = element.relativePath.toString()
                 if (path.contains('org/eclipse/core') && path.endsWith('.class'))
                     println "  $element.relativePath"
-            
+
         }
         */
         from(project.zipTree(dep)){
@@ -274,7 +277,7 @@ jar {
 }
 
 javadoc {
-	classpath += configurations.compileOnly
+    classpath += configurations.compileOnly
 
     // linked javadoc urls.. why not...
     options.addStringOption 'link', 'https://gradle.org/docs/current/javadoc/'
@@ -359,6 +362,13 @@ def getGitHash() {
     return '-' + (process.exitValue() ? 'unknown' : process.text.trim())
 }
 
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+
+    from sourceSets.main.allSource
+    exclude 'GradleStart.java', 'GradleStartServer.java'
+}
+
 publishing {
     repositories {
         if (project.hasProperty("publish-username")) {
@@ -381,6 +391,7 @@ publishing {
             version = project.version
             artifact jar
             artifact javadocJar
+            artifact sourcesJar
         }
     }
 }

@@ -68,7 +68,6 @@ public class ApplyFernFlowerTask extends CachedTask {
 
         Map<String, Object> mapOptions = new HashMap<String, Object>();
         mapOptions.put(IFernflowerPreferences.DECOMPILE_INNER, "1");
-        mapOptions.put(IFernflowerPreferences.DECOMPILE_GENERIC_SIGNATURES, "1");
         mapOptions.put(IFernflowerPreferences.ASCII_STRING_CHARACTERS, "1");
         mapOptions.put(IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "1");
         mapOptions.put(IFernflowerPreferences.DECOMPILE_GENERIC_SIGNATURES, "1");
@@ -89,7 +88,7 @@ public class ApplyFernFlowerTask extends CachedTask {
     private void runFernFlower(FernFlowerSettings settings) throws IOException
     {
         // forking allowed if the property is not present or it is "true" ("true" is the default)
-        boolean forkAllowed = !getProject().hasProperty(FORK_FLAG) || Boolean.parseBoolean(getProject().property(FORK_FLAG).toString());
+        boolean forkAllowed = "x86".equals(System.getProperty("os.arch")) || !getProject().hasProperty(FORK_FLAG) || Boolean.parseBoolean(getProject().property(FORK_FLAG).toString());
         if (!forkAllowed || Runtime.getRuntime().maxMemory() >= REQUIRED_MEMORY) {
             // no fork, either not allowed or memory is OK
             FernFlowerInvoker.runFernFlower(settings);

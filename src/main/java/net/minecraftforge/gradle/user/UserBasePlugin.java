@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -79,10 +80,7 @@ import org.gradle.plugins.ide.eclipse.model.EclipseModel;
 import org.gradle.plugins.ide.idea.model.IdeaModel;
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet;
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
@@ -1274,6 +1272,24 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
                     break;
                 }
             }
+
+            if (root == null) {
+                root = doc.createElement("component");
+                root.setAttribute("name", "RunManager");
+                doc.appendChild(root);
+            } else {
+                NodeList list2 = doc.getElementsByTagName("configuration");
+                LinkedList<Node> nodesToRemove = new LinkedList<>();
+                for (int i = 0; i < list2.getLength(); i ++) {
+                    String name = ((Element) list2.item(i)).getAttribute("name");
+                    if ("Minecraft Client".equals(name) || "Minecraft Server".equals(name)) {
+                        nodesToRemove.add(list2.item(i));
+                    }
+                }
+                for (Node node : nodesToRemove) {
+                    root.removeChild(node);
+                }
+            }
         }
 
         T ext = getExtension();
@@ -1322,7 +1338,7 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
             addXml(child, "option", ImmutableMap.of("name", "ENABLE_SWING_INSPECTOR", "value", "false"));
             addXml(child, "option", ImmutableMap.of("name", "ENV_VARIABLES"));
             addXml(child, "option", ImmutableMap.of("name", "PASS_PARENT_ENVS", "value", "true"));
-            addXml(child, "module", ImmutableMap.of("name", ((IdeaModel) project.getExtensions().getByName("idea")).getModule().getName() + '_' + getExtension().getRunSourceSet().getName()));
+            addXml(child, "module", ImmutableMap.of("name", ((IdeaModel) project.getExtensions().getByName("idea")).getModule().getName() + '.' + getExtension().getRunSourceSet().getName()));
             addXml(child, "RunnerSettings", ImmutableMap.of("RunnerId", "Run"));
             addXml(child, "ConfigurationWrapper", ImmutableMap.of("RunnerId", "Run"));
         }

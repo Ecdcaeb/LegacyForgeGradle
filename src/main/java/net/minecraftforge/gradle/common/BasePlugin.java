@@ -679,16 +679,16 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
             try
             {
                 if (project.getGradle().getStartParameter().isOffline()) // dont even try the internet
-                    return Files.toString(cache, Charsets.UTF_8);
+                    return Files.asCharSource(cache, Charsets.UTF_8).read();
 
                 // dude, its been less than 1 minute since the last time..
                 if (cache.exists() && cache.lastModified() + 60000 >= System.currentTimeMillis())
-                    return Files.toString(cache, Charsets.UTF_8);
+                    return Files.asCharSource(cache, Charsets.UTF_8).read();
 
                 String etag;
                 if (etagFile.exists())
                 {
-                    etag = Files.toString(etagFile, Charsets.UTF_8);
+                    etag = Files.asCharSource(etagFile, Charsets.UTF_8).read();
                 }
                 else
                 {
@@ -714,7 +714,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
                 {
                     // the existing file is good
                     Files.touch(cache); // touch it to update last-modified time, to wait another minute
-                    return Files.toString(cache, Charsets.UTF_8);
+                    return Files.asCharSource(cache, Charsets.UTF_8).read();
                 }
                 else if (con.getResponseCode() == 200)
                 {
@@ -733,7 +733,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
                     }
                     else
                     {
-                        Files.write(etag, etagFile, Charsets.UTF_8);
+                        Files.asCharSink(etagFile, Charsets.UTF_8).write(etag);
                     }
 
                     return new String(data);
@@ -755,7 +755,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
         {
             try
             {
-                return Files.toString(cache, Charsets.UTF_8);
+                return Files.asCharSource(cache, Charsets.UTF_8).read();
             }
             catch (IOException e)
             {
