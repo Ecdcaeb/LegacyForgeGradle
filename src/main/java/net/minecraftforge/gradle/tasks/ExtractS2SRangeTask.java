@@ -59,7 +59,7 @@ public class ExtractS2SRangeTask extends DefaultTask
 
         InputSupplier inSup;
 
-        if (sources.size() == 0)
+        if (sources.isEmpty())
             return; // no input.
         if (sources.size() == 1)
         {

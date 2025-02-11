@@ -57,11 +57,11 @@ configurations {
     deployerJars
     shade
     compileOnly.extendsFrom shade
-    all {
+    configureEach {
         resolutionStrategy {
-            force 'org.ow2.asm:asm-commons:6.0'
-            force 'org.ow2.asm:asm-tree:6.0'
-            force 'org.ow2.asm:asm:6.0'
+            force 'org.ow2.asm:asm-commons:9.7.1'
+            force 'org.ow2.asm:asm-tree:9.7.1'
+            force 'org.ow2.asm:asm:9.7.1'
         }
     }
 }
@@ -71,7 +71,7 @@ dependencies {
 
     // moved to the beginning to be the overrider
     //compile 'org.ow2.asm:asm-debug-all:6.0'
-    compile 'com.google.guava:guava:18.0'
+    compile 'com.google.guava:guava:32.0.1-android'
 
     compile 'net.sf.opencsv:opencsv:2.3' // reading CSVs.. also used by SpecialSource
     compile 'com.cloudbees:diff4j:1.1' // for difing and patching
@@ -80,14 +80,14 @@ dependencies {
 
     compile 'com.github.jponge:lzma-java:1.3' // replaces the LZMA binary
     compile 'com.nothome:javaxdelta:2.0.1' // GDIFF implementation for BinPatches
-    compile 'com.google.code.gson:gson:2.2.4' // Used instead of Argo for buuilding changelog.
+    compile 'com.google.code.gson:gson:2.8.9' // Used instead of Argo for buuilding changelog.
     compile 'com.github.tony19:named-regexp:0.2.3' // 1.7 Named regexp features
     compile 'net.minecraftforge:forgeflower:1.0.342-SNAPSHOT' // Fernflower Forge edition
 
     shade 'net.md-5:SpecialSource:1.8.2' // deobf and reobf
 
     // because curse
-    compile 'org.apache.httpcomponents:httpclient:4.3.3'
+    compile 'org.apache.httpcomponents:httpclient:4.5.13'
     compile 'org.apache.httpcomponents:httpmime:4.3.3'
 
     // mcp stuff

@@ -32,6 +32,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
+import org.jetbrains.annotations.NotNull;
 
 public class CacheContainer
 {
@@ -45,7 +46,7 @@ public class CacheContainer
             .build(
                     new CacheLoader<Class<?>, CacheContainer>() {
                         @Override
-                        public CacheContainer load(Class<?> key) throws Exception
+                        public CacheContainer load(@NotNull Class<?> key) throws Exception
                         {
                             return new CacheContainer(key);
                         }

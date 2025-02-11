@@ -25,6 +25,7 @@ import org.gradle.api.file.FileTreeElement;
 import org.gradle.api.file.FileVisitDetails;
 import org.gradle.api.file.FileVisitor;
 import org.gradle.api.specs.Spec;
+import org.jetbrains.annotations.NotNull;
 
 public class ExtractionVisitor implements FileVisitor
 {
@@ -40,7 +41,7 @@ public class ExtractionVisitor implements FileVisitor
     }
 
     @Override
-    public void visitDir(FileVisitDetails details)
+    public void visitDir(@NotNull FileVisitDetails details)
     {
         if (emptyDirs && spec.isSatisfiedBy(details))
         {
@@ -50,7 +51,7 @@ public class ExtractionVisitor implements FileVisitor
     }
 
     @Override
-    public void visitFile(FileVisitDetails details)
+    public void visitFile(@NotNull FileVisitDetails details)
     {
         if (!spec.isSatisfiedBy(details))
         {

@@ -45,7 +45,7 @@ import java.util.*;
 
 /**
  * STOLEN FROM diff4j v1.1
- *
+ * <p>
  * Base64 utility methods.
  *
  * @author Maros Sandor

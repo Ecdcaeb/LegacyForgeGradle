@@ -44,6 +44,7 @@ import org.gradle.api.logging.LoggingManager;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.internal.logging.services.DefaultLoggingManager;
 import org.gradle.util.GradleVersion;
 
 import com.google.common.base.Charsets;
@@ -54,6 +55,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
+import org.jetbrains.annotations.NotNull;
 
 public class CreateStartTask extends CachedTask
 {
@@ -145,13 +147,13 @@ public class CreateStartTask extends CachedTask
             getProject().fileTree(resourceDir).visit(new FileVisitor() {
 
                 @Override
-                public void visitDir(FileVisitDetails arg0)
+                public void visitDir(@NotNull FileVisitDetails arg0)
                 {
                     // ignore
                 }
 
                 @Override
-                public void visitFile(FileVisitDetails arg0)
+                public void visitFile(@NotNull FileVisitDetails arg0)
                 {
                     arg0.copyTo(arg0.getRelativePath().getFile(compiled));
                 }
@@ -175,7 +177,13 @@ public class CreateStartTask extends CachedTask
             else
             {
                 try {
-                    LoggingManager.class.getMethod("setLevel", LogLevel.class).invoke(task.getLogging(), LogLevel.ERROR);
+                    LoggingManager manager = task.getLogging();
+                    if (manager instanceof DefaultLoggingManager) {
+                        ((DefaultLoggingManager)manager).setLevelInternal(LogLevel.ERROR);
+                    }
+                    else {
+                        manager.getClass().getMethod("setLevel", LogLevel.class).invoke(task.getLogging(), LogLevel.ERROR);
+                    }
                 } catch (Exception e) {
                     //Couldn't find it? We are on some weird version oh well.
                     task.getLogger().info("Could not set log level:", e);

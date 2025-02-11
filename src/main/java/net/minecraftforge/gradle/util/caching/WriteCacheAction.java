@@ -29,6 +29,7 @@ import org.gradle.api.Action;
 import org.gradle.api.Task;
 
 import com.google.common.io.Files;
+import org.jetbrains.annotations.NotNull;
 
 public class WriteCacheAction implements Action<Task>
 {
@@ -42,7 +43,7 @@ public class WriteCacheAction implements Action<Task>
     }
 
     @Override
-    public void execute(Task task)
+    public void execute(@NotNull Task task)
     {
         execute((ICachableTask) task);
     }

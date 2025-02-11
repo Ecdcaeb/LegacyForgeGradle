@@ -145,7 +145,7 @@ public interface IReobfuscator
     /**
      * Sets the mappings to use Searge names. This is the default with the Forge
      * plugin.
-     *
+     * <p>
      * i.e. Minecraft.func_71410_x()
      *
      * @deprecated Use {@link #setMappingType(ReobfMappingType)}
@@ -156,7 +156,7 @@ public interface IReobfuscator
     /**
      * Sets the mappings to use Notch names. Useful for mods that want to be
      * able to run without Forge installed, such as libraries or hybrid mods.
-     *
+     * <p>
      * i.e. bsu.z()
      *
      * @deprecated Use {@link #setMappingType(ReobfMappingType)}
