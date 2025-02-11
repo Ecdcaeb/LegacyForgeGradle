@@ -36,8 +36,7 @@ public class TestGenSrgs extends TaskTest<GenSrgs>
         return delayed(testResource.getFile(temporaryFolder));
     }
 
-    private static DelayedFile delayed(File file) throws IOException
-    {
+    private static DelayedFile delayed(File file) {
         return new DelayedFile(TestGenSrgs.class, file);
     }
 

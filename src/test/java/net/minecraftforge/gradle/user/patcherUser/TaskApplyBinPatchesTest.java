@@ -82,7 +82,7 @@ public class TaskApplyBinPatchesTest extends TaskTest<TaskApplyBinPatches>
             uncompressedPatchJar = byteArrayOutputStream.toByteArray();
         }
 
-        try (OutputStream patchOutputStream = new BufferedOutputStream(new FileOutputStream(patchJar)))
+        try (OutputStream patchOutputStream = new BufferedOutputStream(Files.newOutputStream(patchJar.toPath())))
         {
             packJar(new JarInputStream(new ByteArrayInputStream(uncompressedPatchJar)), patchOutputStream);
         }
@@ -121,7 +121,7 @@ public class TaskApplyBinPatchesTest extends TaskTest<TaskApplyBinPatches>
         Assert.assertTrue("File '" + outputJar + "' should exist", outputJar.isFile());
 
         Map<String, byte[]> contents = new HashMap<>();
-        try (JarInputStream jarInputStream = new JarInputStream(new FileInputStream(outputJar)))
+        try (JarInputStream jarInputStream = new JarInputStream(Files.newInputStream(outputJar.toPath())))
         {
             JarEntry e;
             while ((e = jarInputStream.getNextJarEntry()) != null)

@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.jar.*;
 import java.util.zip.*;
 
@@ -44,7 +45,7 @@ public class TestConstants implements UsesTemporaryFiles
     public void testHashZipWithNoContents() throws Exception
     {
         File zipFile = temporaryFolder.newFile("zipFile.zip");
-        try (JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(zipFile)))
+        try (JarOutputStream jarOutputStream = new JarOutputStream(Files.newOutputStream(zipFile.toPath())))
         {
             ZipEntry entry = new ZipEntry(STRING_TO_HASH);
             jarOutputStream.putNextEntry(entry);

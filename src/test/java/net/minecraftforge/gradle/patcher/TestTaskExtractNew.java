@@ -27,6 +27,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.jar.*;
 
 public class TestTaskExtractNew extends TaskTest<TaskExtractNew>
@@ -40,8 +41,8 @@ public class TestTaskExtractNew extends TaskTest<TaskExtractNew>
         File cleanJar = TestResource.ACTUAL_CLEAN_JAR.getFile(temporaryFolder);
         File dirtyJar = temporaryFolder.newFile("dirty.jar");
 
-        try (JarInputStream jarInputStream = new JarInputStream(new FileInputStream(cleanJar));
-             JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(dirtyJar)))
+        try (JarInputStream jarInputStream = new JarInputStream(Files.newInputStream(cleanJar.toPath()));
+             JarOutputStream jarOutputStream = new JarOutputStream(Files.newOutputStream(dirtyJar.toPath())))
         {
             JarEntry e;
             while ((e = jarInputStream.getNextJarEntry()) != null)

@@ -67,11 +67,6 @@ public class FileLogListenner implements StandardOutputListener, BuildListener
     public void projectsLoaded(@NotNull Gradle arg0) {}
 
     @Override
-    @SuppressWarnings("all")
-    @Deprecated // remove it when it removed
-    public void buildStarted(@NotNull Gradle arg0) {}
-
-    @Override
     public void onOutput(CharSequence arg0)
     {
         try
@@ -93,7 +88,7 @@ public class FileLogListenner implements StandardOutputListener, BuildListener
         }
         catch (IOException e)
         {
-            e.printStackTrace();
+            LOGGER.error("Unable to close the File Writer", e);
         }
     }
 

@@ -59,7 +59,7 @@ public class TestTaskRecompileMc extends TaskTest<TaskRecompileMc>
             {
                 ZipEntry afterRecompile = outJarFile.getEntry(it.getName().replace(".java", ".class"));
                 Assert.assertNotNull("Entry for source " + it.getName() + " should exist", afterRecompile);
-                Assert.assertNotEquals("Entry for source " + it.getName() + " should have non-zero size", it.getSize());
+                Assert.assertTrue("Entry for source " + it.getName() + " should have non-zero size", it.getSize() != 0);
             });
             Assert.assertNotEquals("output jar '" + outJarFile + "' should not be empty", 0, outJarFile.size());
         }

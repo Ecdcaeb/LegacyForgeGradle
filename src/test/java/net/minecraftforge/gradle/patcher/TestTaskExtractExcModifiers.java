@@ -42,7 +42,7 @@ public class TestTaskExtractExcModifiers extends TaskTest<TaskExtractExcModifier
         taskExtractExcModifiers.matchingPrefix = "test/";
         taskExtractExcModifiers.doStuff();
 
-        String contents = Files.toString(outExc, Charsets.UTF_8).replace("\r", "");
+        String contents = Files.asCharSource(outExc, Charsets.UTF_8).read().replace("\r", "");
         Assert.assertEquals("test/actual/NonDepUser/doSuff()V=static\n" +
                 "test/actual/NonDepUser/doStuffObf()V=static\n", contents);
 

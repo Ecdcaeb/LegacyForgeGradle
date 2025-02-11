@@ -120,26 +120,22 @@ public class TestAbstractEditJarTask extends TaskTest<AbstractEditJarTask>
         }
 
         @Override
-        public void doStuffBefore() throws Exception
-        {
+        public void doStuffBefore() {
 
         }
 
         @Override
-        public String asRead(String name, String file) throws Exception
-        {
+        public String asRead(String name, String file) {
             return file;
         }
 
         @Override
-        public void doStuffMiddle(Map<String, String> sourceMap, Map<String, byte[]> resourceMap) throws Exception
-        {
+        public void doStuffMiddle(Map<String, String> sourceMap, Map<String, byte[]> resourceMap) {
 
         }
 
         @Override
-        public void doStuffAfter() throws Exception
-        {
+        public void doStuffAfter() {
 
         }
 

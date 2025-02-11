@@ -54,7 +54,7 @@ public class ExtensionLiteLoaderVersionTest
     {
         // version
         this.ext.setVersion("1.8.9");
-        assertEquals(this.ext.getVersion(), "1.8.9");
+        assertEquals("1.8.9", this.ext.getVersion());
     }
 
     @Test(expected = InvalidUserDataException.class)
