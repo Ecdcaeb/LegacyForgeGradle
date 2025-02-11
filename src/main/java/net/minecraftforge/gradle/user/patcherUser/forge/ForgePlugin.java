@@ -144,19 +144,19 @@ public class ForgePlugin extends PatcherUserBasePlugin<ForgeExtension>
     @Override
     public String getApiGroup(ForgeExtension ext)
     {
-        return "net.minecraftforge";
+        return ext.forgeVersion.packageName;
     }
 
     @Override
     public String getApiName(ForgeExtension ext)
     {
-        return "forge";
+        return ext.forgeVersion.artificialName;
     }
 
     @Override
     public String getApiVersion(ForgeExtension ext)
     {
-        return ext.getVersion() + "-" + ext.getForgeVersion();
+        return ext.forgeVersion.version;
     }
 
     @Override

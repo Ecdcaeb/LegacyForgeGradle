@@ -29,6 +29,7 @@ import org.junit.*;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.jar.*;
 
 public class TestArtifactSaver
@@ -98,7 +99,7 @@ public class TestArtifactSaver
         for (String folder : FOLDERS)
         {
             File expected = new File(saveFolder, folder + '/' + ARCHIVE);
-            try (JarInputStream jarInputStream = new JarInputStream(new FileInputStream(expected)))
+            try (JarInputStream jarInputStream = new JarInputStream(Files.newInputStream(expected.toPath())))
             {
                 Assert.assertEquals(entryName, jarInputStream.getNextEntry().getName());
                 try (Reader reader = new InputStreamReader(jarInputStream, Charsets.UTF_8))
@@ -114,7 +115,7 @@ public class TestArtifactSaver
         File source = testResource.getFile(temporaryFolder);
         String firstEntryName;
         byte[] contents;
-        try (JarInputStream jarInputStream = new JarInputStream(new FileInputStream(source)))
+        try (JarInputStream jarInputStream = new JarInputStream(Files.newInputStream(source.toPath())))
         {
             firstEntryName = jarInputStream.getNextEntry().getName();
             contents = ByteStreams.toByteArray(jarInputStream);
@@ -126,7 +127,7 @@ public class TestArtifactSaver
         for (String folder : FOLDERS)
         {
             saver.createArchive(folder, ARCHIVE, null);
-            saver.copyEntry(source.getAbsolutePath().toString(), folder, ARCHIVE, firstEntryName);
+            saver.copyEntry(source.getAbsolutePath(), folder, ARCHIVE, firstEntryName);
         }
 
         for (String folder : FOLDERS)
@@ -137,7 +138,7 @@ public class TestArtifactSaver
         for (String folder : FOLDERS)
         {
             File expected = new File(saveFolder, folder + '/' + ARCHIVE);
-            try (JarInputStream jarInputStream = new JarInputStream(new FileInputStream(expected)))
+            try (JarInputStream jarInputStream = new JarInputStream(Files.newInputStream(expected.toPath())))
             {
                 String name = jarInputStream.getNextEntry().getName();
                 byte[] outContents = ByteStreams.toByteArray(jarInputStream);
