@@ -22,7 +22,6 @@ package net.minecraftforge.gradle.user;
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -247,7 +246,7 @@ public class TaskSingleReobf extends DefaultTask
     private void applyExtraTransformers(File inJar, File outJar, List<ReobfTransformer> transformers) throws IOException
     {
         try (ZipFile in = new ZipFile(inJar);
-             ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(outJar))))
+             ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(java.nio.file.Files.newOutputStream(outJar.toPath()))))
         {
             for (ZipEntry e : Collections.list(in.entries()))
             {
@@ -321,7 +320,7 @@ public class TaskSingleReobf extends DefaultTask
 
     public FileCollection getSecondarySrgFiles()
     {
-        List<File> files = new ArrayList<File>(secondarySrgFiles.size());
+        List<File> files = new ArrayList<>(secondarySrgFiles.size());
 
         for (Object thing : getProject().files(secondarySrgFiles))
         {

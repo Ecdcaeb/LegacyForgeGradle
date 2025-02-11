@@ -41,7 +41,7 @@ public final class JavadocAdder
         StringBuilder builder = new StringBuilder();
         
         // split and wrap.
-        List<String> list = new LinkedList<String>();
+        List<String> list = new LinkedList<>();
         for (String line : Splitter.on("\\n").splitToList(javadoc))
         {
             list.addAll(wrapText(line, 120 - (indent.length() + 3)));
@@ -84,22 +84,22 @@ public final class JavadocAdder
         // return empty array for null text
         if (text == null)
         {
-            return new ArrayList<String>();
+            return new ArrayList<>();
         }
 
         // return text if len is zero or less
         if (len <= 0)
         {
-            return new ArrayList<String>(Collections.singletonList(text));
+            return new ArrayList<>(Collections.singletonList(text));
         }
 
         // return text if less than length
         if (text.length() <= len)
         {
-            return new ArrayList<String>(Collections.singletonList(text));
+            return new ArrayList<>(Collections.singletonList(text));
         }
 
-        List<String> lines = new LinkedList<String>();
+        List<String> lines = new LinkedList<>();
         StringBuilder line = new StringBuilder();
         StringBuilder word = new StringBuilder();
         int tempNum;
@@ -153,7 +153,7 @@ public final class JavadocAdder
             lines.add(line.toString());
         }
 
-        List<String> temp = new ArrayList<String>(lines.size());
+        List<String> temp = new ArrayList<>(lines.size());
         for (String s : lines)
         {
             temp.add(s.trim());

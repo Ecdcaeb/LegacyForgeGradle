@@ -23,9 +23,8 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -56,6 +55,7 @@ import lzma.sdk.lzma.Decoder;
 import lzma.streams.LzmaInputStream;
 import net.minecraftforge.gradle.util.caching.Cached;
 import net.minecraftforge.gradle.util.caching.CachedTask;
+import org.jetbrains.annotations.NotNull;
 
 public class TaskApplyBinPatches extends CachedTask
 {
@@ -83,11 +83,11 @@ public class TaskApplyBinPatches extends CachedTask
             getOutJar().delete();
         }
 
-        final HashSet<String> entries = new HashSet<String>();
+        final HashSet<String> entries = new HashSet<>();
 
         try (ZipFile in = new ZipFile(getInJar());
-             ZipInputStream classesIn = new ZipInputStream(new FileInputStream(getClassJar()));
-             ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(getOutJar()))))
+             ZipInputStream classesIn = new ZipInputStream(Files.newInputStream(getClassJar().toPath()));
+             ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(Files.newOutputStream(getOutJar().toPath()))))
         {
             // DO PATCHES
             log("Patching Class:");
@@ -145,12 +145,12 @@ public class TaskApplyBinPatches extends CachedTask
             getProject().zipTree(getResourceJar()).visit(new FileVisitor()
             {
                 @Override
-                public void visitDir(FileVisitDetails dirDetails)
+                public void visitDir(@NotNull FileVisitDetails dirDetails)
                 {
                 }
 
                 @Override
-                public void visitFile(FileVisitDetails file)
+                public void visitFile(@NotNull FileVisitDetails file)
                 {
                     try
                     {
@@ -188,7 +188,7 @@ public class TaskApplyBinPatches extends CachedTask
         byte[] bytes;
         try (ByteArrayOutputStream jarBytes = new ByteArrayOutputStream())
         {
-            try (LzmaInputStream binpatchesDecompressed = new LzmaInputStream(new FileInputStream(getPatches()), new Decoder());
+            try (LzmaInputStream binpatchesDecompressed = new LzmaInputStream(Files.newInputStream(getPatches().toPath()), new Decoder());
                  JarOutputStream jos = new JarOutputStream(jarBytes))
             {
                 Pack200.newUnpacker().unpack(binpatchesDecompressed, jos);

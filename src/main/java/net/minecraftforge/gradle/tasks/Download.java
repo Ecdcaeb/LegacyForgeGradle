@@ -53,7 +53,7 @@ public class Download extends CachedTask
         outputFile.getParentFile().mkdirs();
         outputFile.createNewFile();
 
-        getLogger().info("Downloading " + getUrl() + " to " + outputFile);
+        getLogger().info("Downloading {} to {}", getUrl(), outputFile);
 
         HttpURLConnection connect = (HttpURLConnection) (new URL(getUrl())).openConnection();
         connect.setRequestProperty("User-Agent", Constants.USER_AGENT);

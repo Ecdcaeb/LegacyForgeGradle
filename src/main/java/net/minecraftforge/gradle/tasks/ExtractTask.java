@@ -41,12 +41,13 @@ import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.util.PatternFilterable;
 import org.gradle.api.tasks.util.PatternSet;
+import org.jetbrains.annotations.NotNull;
 
 public class ExtractTask extends CachedTask implements PatternFilterable
 {
 
     @InputFiles
-    private final LinkedHashSet<Object> sourcePaths      = new LinkedHashSet<Object>();
+    private final LinkedHashSet<Object> sourcePaths      = new LinkedHashSet<>();
 
     @Input
     private final PatternSet            patternSet       = new PatternSet();
@@ -78,7 +79,7 @@ public class ExtractTask extends CachedTask implements PatternFilterable
 
         for (File source : getSourcePaths())
         {
-            getLogger().debug("Extracting: " + source);
+            getLogger().debug("Extracting: {}", source);
             getProject().zipTree(source).visit(visitor);
         }
     }
@@ -147,76 +148,86 @@ public class ExtractTask extends CachedTask implements PatternFilterable
         this.clean = clean;
     }
 
+    @NotNull
     @Override
-    public PatternFilterable exclude(String... arg0)
+    public PatternFilterable exclude(@NotNull String... arg0)
     {
         return patternSet.exclude(arg0);
     }
 
+    @NotNull
     @Override
-    public PatternFilterable exclude(Iterable<String> arg0)
+    public PatternFilterable exclude(@NotNull Iterable<String> arg0)
     {
         return patternSet.exclude(arg0);
     }
 
+    @NotNull
     @Override
-    public PatternFilterable exclude(Spec<FileTreeElement> arg0)
+    public PatternFilterable exclude(@NotNull Spec<FileTreeElement> arg0)
     {
         return patternSet.exclude(arg0);
     }
 
+    @NotNull
     @Override
-    @SuppressWarnings("rawtypes")
-    public PatternFilterable exclude(Closure arg0)
+    public PatternFilterable exclude(@NotNull Closure arg0)
     {
         return patternSet.exclude(arg0);
     }
 
+    @NotNull
     @Override
     public Set<String> getExcludes()
     {
         return patternSet.getExcludes();
     }
 
+    @NotNull
     @Override
     public Set<String> getIncludes()
     {
         return patternSet.getIncludes();
     }
 
+    @NotNull
     @Override
-    public PatternFilterable include(String... arg0)
+    public PatternFilterable include(@NotNull String... arg0)
     {
         return patternSet.include(arg0);
     }
 
+    @NotNull
     @Override
-    public PatternFilterable include(Iterable<String> arg0)
+    public PatternFilterable include(@NotNull Iterable<String> arg0)
     {
         return patternSet.include(arg0);
     }
 
+    @NotNull
     @Override
-    public PatternFilterable include(Spec<FileTreeElement> arg0)
+    public PatternFilterable include(@NotNull Spec<FileTreeElement> arg0)
     {
         return patternSet.include(arg0);
     }
 
+    @NotNull
     @Override
-    @SuppressWarnings("rawtypes")
-    public PatternFilterable include(Closure arg0)
+    public PatternFilterable include(@NotNull Closure arg0)
     {
         return patternSet.include(arg0);
     }
 
+    @NotNull
     @Override
-    public PatternFilterable setExcludes(Iterable<String> arg0)
+    public PatternFilterable setExcludes(@NotNull Iterable<String> arg0)
     {
         return patternSet.setExcludes(arg0);
     }
 
+    @NotNull
     @Override
-    public PatternFilterable setIncludes(Iterable<String> arg0)
+    public PatternFilterable setIncludes(@NotNull Iterable<String> arg0)
     {
         return patternSet.setIncludes(arg0);
     }

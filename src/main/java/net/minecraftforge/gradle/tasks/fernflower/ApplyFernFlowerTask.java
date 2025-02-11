@@ -25,13 +25,11 @@ import net.minecraftforge.gradle.common.Constants;
 import net.minecraftforge.gradle.util.caching.Cached;
 import net.minecraftforge.gradle.util.caching.CachedTask;
 import org.codehaus.groovy.runtime.ResourceGroovyMethods;
-import org.gradle.api.Action;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecResult;
-import org.gradle.process.JavaExecSpec;
 import org.jetbrains.java.decompiler.main.DecompilerContext;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerPreferences;
 
@@ -66,7 +64,7 @@ public class ApplyFernFlowerTask extends CachedTask {
         final File tempDir = this.getTemporaryDir();
         final File tempJar = new File(this.getTemporaryDir(), in.getName());
 
-        Map<String, Object> mapOptions = new HashMap<String, Object>();
+        Map<String, Object> mapOptions = new HashMap<>();
         mapOptions.put(IFernflowerPreferences.DECOMPILE_INNER, "1");
         mapOptions.put(IFernflowerPreferences.ASCII_STRING_CHARACTERS, "1");
         mapOptions.put(IFernflowerPreferences.INCLUDE_ENTIRE_CLASSPATH, "1");
@@ -127,21 +125,16 @@ public class ApplyFernFlowerTask extends CachedTask {
 
     private void runForkedFernFlower(final File data)
     {
-        ExecResult result = getProject().javaexec(new Action<JavaExecSpec>() {
+        ExecResult result = getProject().javaexec(exec -> {
+            exec.classpath(forkedClasspath);
+            exec.setMain(FernFlowerInvoker.class.getName());
+            exec.setJvmArgs(ImmutableList.of("-Xmx3G"));
+            // pass the temporary file
+            exec.args(data);
 
-            @Override
-            public void execute(JavaExecSpec exec)
-            {
-                exec.classpath(forkedClasspath);
-                exec.setMain(FernFlowerInvoker.class.getName());
-                exec.setJvmArgs(ImmutableList.of("-Xmx3G"));
-                // pass the temporary file
-                exec.args(data);
-
-                // Forward std streams
-                exec.setStandardOutput(System.out);
-                exec.setErrorOutput(System.err);
-            }
+            // Forward std streams
+            exec.setStandardOutput(System.out);
+            exec.setErrorOutput(System.err);
         });
         result.rethrowFailure();
         result.assertNormalExitValue();

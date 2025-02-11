@@ -115,7 +115,7 @@ public class LiteLoaderJson
         public VersionObject deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
         {
             VersionObject obj = new VersionObject();
-            obj.artifacts = new LinkedList<Artifact>();
+            obj.artifacts = new LinkedList<>();
             
             JsonObject repoData = json.getAsJsonObject().getAsJsonObject("repo");
             if (repoData != null)
@@ -166,7 +166,7 @@ public class LiteLoaderJson
         {
             String version = versionEntry.getKey();
             VersionObject data = versionEntry.getValue();
-            if (data.artifacts.size() == 0 && "SNAPSHOT".equals(data.repo.stream))
+            if (data.artifacts.isEmpty() && "SNAPSHOT".equals(data.repo.stream))
             {
                 // Add snapshot artifact
                 data.latest = new Artifact(version, data.repo, data.snapshots);

@@ -20,9 +20,8 @@
 package net.minecraftforge.gradle.user;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
@@ -92,8 +91,8 @@ public class TaskSingleDeobfBin extends CachedTask
         output.getParentFile().mkdirs();
 
         // begin reading jar
-        try (ZipInputStream zin = new ZipInputStream(new FileInputStream(input));
-             JarOutputStream zout = new JarOutputStream(new FileOutputStream(output))) {
+        try (ZipInputStream zin = new ZipInputStream(Files.newInputStream(input.toPath()));
+             JarOutputStream zout = new JarOutputStream(Files.newOutputStream(output.toPath()))) {
             ZipEntry entry;
 
             while ((entry = zin.getNextEntry()) != null)

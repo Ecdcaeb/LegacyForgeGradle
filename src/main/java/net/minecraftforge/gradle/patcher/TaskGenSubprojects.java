@@ -105,36 +105,31 @@ class TaskGenSubprojects extends DefaultTask
                 String id = resource.substring(start + 2, end);
                 end += 2;
 
-                if ("repositories".equals(id))
-                {
-                    for (Repo repo : repositories)
-                    {
-                        lines(builder, 2,
-                                "maven {",
-                                "    name '" + repo.name + "'",
-                                "    url '" + repo.url + "'",
-                                "}");
-                    }
-                }
-                else if ("dependencies".equals(id))
-                {
-                    for (String dep : dependencies)
-                    {
-                        if (this.depFilter != null && !this.depFilter.call(dep))
-                        {
-                            this.getProject().getLogger().debug("Filtering Dep: " + dep);
-                            continue;
+                switch (id) {
+                    case "repositories":
+                        for (Repo repo : repositories) {
+                            lines(builder, 2,
+                                    "maven {",
+                                    "    name '" + repo.name + "'",
+                                    "    url '" + repo.url + "'",
+                                    "}");
                         }
-                        append(builder, INDENT, INDENT, dep, NEWLINE);
-                    }
-                }
-                else if ("javaLevel".equals(id))
-                {
-                    builder.append(getJavaLevel());
-                }
-                else
-                {
-                    this.getProject().getLogger().lifecycle("Unknown subproject key: " + id);
+                        break;
+                    case "dependencies":
+                        for (String dep : dependencies) {
+                            if (this.depFilter != null && !this.depFilter.call(dep)) {
+                                this.getProject().getLogger().debug("Filtering Dep: {}", dep);
+                                continue;
+                            }
+                            append(builder, INDENT, INDENT, dep, NEWLINE);
+                        }
+                        break;
+                    case "javaLevel":
+                        builder.append(getJavaLevel());
+                        break;
+                    default:
+                        this.getProject().getLogger().lifecycle("Unknown subproject key: " + id);
+                        break;
                 }
             }
         }
@@ -297,7 +292,7 @@ class TaskGenSubprojects extends DefaultTask
     @OutputFiles
     public List<File> getGeneratedFiles()
     {
-        List<File> files = new ArrayList<File>(2 + projects.size());
+        List<File> files = new ArrayList<>(2 + projects.size());
         File workspace = getWorkspaceDir();
         files.add(new File(workspace, "build.gradle"));
         files.add(new File(workspace, "settings.gradle"));

@@ -94,7 +94,7 @@ public class RemapSources extends AbstractEditJarTask
     @Override
     public String asRead(String name, String text)
     {
-        ArrayList<String> newLines = new ArrayList<String>();
+        ArrayList<String> newLines = new ArrayList<>();
         for (String line : Constants.lines(text))
         {
             // basically all this code is to find the javadocs for a field before replacing it.

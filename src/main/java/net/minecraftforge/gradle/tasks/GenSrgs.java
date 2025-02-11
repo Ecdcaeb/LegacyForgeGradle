@@ -71,16 +71,16 @@ public class GenSrgs extends CachedTask
     //@formatter:on
 
     @InputFiles
-    private final LinkedList<File> extraExcs = new LinkedList<File>();
+    private final LinkedList<File> extraExcs = new LinkedList<>();
     @InputFiles
-    private final LinkedList<File> extraSrgs = new LinkedList<File>();
+    private final LinkedList<File> extraSrgs = new LinkedList<>();
 
     @TaskAction
     public void doTask() throws IOException
     {
         // csv data.  SRG -> MCP
-        HashMap<String, String> methods = new HashMap<String, String>();
-        HashMap<String, String> fields = new HashMap<String, String>();
+        HashMap<String, String> methods = new HashMap<>();
+        HashMap<String, String> fields = new HashMap<>();
         readCSVs(getMethodsCsv(), getFieldsCsv(), methods, fields);
 
         // Do SRG stuff
@@ -323,7 +323,7 @@ public class GenSrgs extends CachedTask
                 if (arg == Type.DOUBLE_TYPE || arg == Type.LONG_TYPE)
                     idx++;
             }
-            if (args.size() > 0)
+            if (!args.isEmpty())
             {
                 String key = cls + "." + name + mtd.sig;
                 String info = tmp.get(key);

@@ -21,8 +21,8 @@ package net.minecraftforge.gradle.user;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
@@ -71,7 +71,7 @@ public class TaskExtractAnnotations extends DefaultTask
         Constants.copyFile(tempOut, out);// This is the only 'destructive' line, IF we do error on here. then something is screwy... If we error above then it'd be just like this never run.
         tempOut.delete();
         } catch (IOException e) {
-            this.getProject().getLogger().error("Error while building FML annotations cache: " + e.getMessage(), e);
+            this.getProject().getLogger().error("Error while building FML annotations cache: {}", e.getMessage(), e);
         }
     }
 
@@ -81,7 +81,7 @@ public class TaskExtractAnnotations extends DefaultTask
         Map<String, Integer> class_versions = Maps.newTreeMap();
 
         try (ZipFile in = new ZipFile(input);
-             ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(output))))
+             ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(Files.newOutputStream(output.toPath()))))
         {
             for (ZipEntry e : Collections.list(in.entries()))
             {

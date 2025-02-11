@@ -58,6 +58,7 @@ import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
 import com.nothome.delta.Delta;
+import org.jetbrains.annotations.NotNull;
 
 class TaskGenBinPatches extends DefaultTask
 {
@@ -72,10 +73,10 @@ class TaskGenBinPatches extends DefaultTask
     //@formatter:on
 
     private final List<Object>             patchSets    = Lists.newArrayList();
-    private final HashMap<String, String>  obfMapping   = new HashMap<String, String>();
-    private final HashMap<String, String>  srgMapping   = new HashMap<String, String>();
+    private final HashMap<String, String>  obfMapping   = new HashMap<>();
+    private final HashMap<String, String>  srgMapping   = new HashMap<>();
     private final Multimap<String, String> innerClasses = ArrayListMultimap.create();
-    private final Set<String>              patchedFiles = new HashSet<String>();
+    private final Set<String>              patchedFiles = new HashSet<>();
     private final Delta                    delta        = new Delta();
 
     //@formatter:off
@@ -107,8 +108,8 @@ class TaskGenBinPatches extends DefaultTask
             }
         }
 
-        HashMap<String, byte[]> runtime = new HashMap<String, byte[]>();
-        HashMap<String, byte[]> devtime = new HashMap<String, byte[]>();
+        HashMap<String, byte[]> runtime = new HashMap<>();
+        HashMap<String, byte[]> devtime = new HashMap<>();
 
         File dirtyJar = getDirtyJar();
 
@@ -144,7 +145,7 @@ class TaskGenBinPatches extends DefaultTask
             final Splitter splitter = Splitter.on(CharMatcher.anyOf(": ")).omitEmptyStrings().trimResults();
 
             @Override
-            public boolean processLine(String line) throws IOException
+            public boolean processLine(@NotNull String line) throws IOException
             {
                 if (!line.startsWith("CL"))
                 {

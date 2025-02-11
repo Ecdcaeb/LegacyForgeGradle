@@ -94,10 +94,10 @@ public class TaskExtractAnnotationsText extends DefaultTask
                 {
                   if (e.getName().endsWith("$.class")) //Scala synthetic class, skip
                     continue;
-                    byte[] data = ByteStreams.toByteArray(in.getInputStream(e));
-                    ASMInfo info = AnnotationUtils.processClass(data);
-                    if (info != null)
-                    {
+
+                  byte[] data = ByteStreams.toByteArray(in.getInputStream(e));
+                  ASMInfo info = AnnotationUtils.processClass(data);
+                  if (info != null) {
                         String name = e.getName().substring(0, e.getName().length() - 6);
                         //class_versions.put(name, info.version);
                         info.version = null;

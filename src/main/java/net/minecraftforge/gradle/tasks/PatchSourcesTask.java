@@ -50,6 +50,7 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
+import org.jetbrains.annotations.NotNull;
 
 public class PatchSourcesTask extends AbstractEditJarTask
 {
@@ -104,13 +105,13 @@ public class PatchSourcesTask extends AbstractEditJarTask
             getProject().zipTree(patchThingy).visit(new FileVisitor() {
 
                 @Override
-                public void visitDir(FileVisitDetails arg0)
+                public void visitDir(@NotNull FileVisitDetails arg0)
                 {
                     // nope.
                 }
 
                 @Override
-                public void visitFile(FileVisitDetails details)
+                public void visitFile(@NotNull FileVisitDetails details)
                 {
                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
                     details.copyTo(stream);
@@ -146,7 +147,7 @@ public class PatchSourcesTask extends AbstractEditJarTask
         FileVisitor visitor = new FileVisitor() {
 
             @Override
-            public void visitDir(FileVisitDetails arg0)
+            public void visitDir(@NotNull FileVisitDetails arg0)
             {
                 // nope.
             }
@@ -218,7 +219,7 @@ public class PatchSourcesTask extends AbstractEditJarTask
                         if (!hunk.getStatus().isSuccess())
                         {
                             failed++;
-                            getLogger().error("  " + hunk.getHunkID() + ": " + (hunk.getFailure() != null ? hunk.getFailure().getMessage() : "") + " @ " + hunk.getIndex());
+                            getLogger().error("  {}: {} @ {}", hunk.getHunkID(), hunk.getFailure() != null ? hunk.getFailure().getMessage() : "", hunk.getIndex());
 
                             if (makeRejects)
                             {
@@ -229,7 +230,7 @@ public class PatchSourcesTask extends AbstractEditJarTask
                         }
                         else if (hunk.getStatus() == PatchStatus.Fuzzed)
                         {
-                            getLogger().info("  " + hunk.getHunkID() + " fuzzed " + hunk.getFuzz() + "!");
+                            getLogger().info("  {} fuzzed {}!", hunk.getHunkID(), hunk.getFuzz());
                         }
                     }
 
@@ -425,7 +426,7 @@ public class PatchSourcesTask extends AbstractEditJarTask
             if (fileMap.containsKey(target))
             {
                 String[] lines = fileMap.get(target).split("\r\n|\r|\n");
-                List<String> ret = new ArrayList<String>();
+                List<String> ret = new ArrayList<>();
                 Collections.addAll(ret, lines);
                 return ret;
             }

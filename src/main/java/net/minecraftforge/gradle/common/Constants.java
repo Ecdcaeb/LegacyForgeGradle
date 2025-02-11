@@ -205,14 +205,14 @@ public class Constants
     public static final String TASK_CLEAN_CACHE      = "cleanCache";
 
     // util
-    public static final String NEWLINE = System.getProperty("line.separator");
+    public static final String NEWLINE = System.lineSeparator();
 
     // helper methods
     public static List<String> getClassPath()
     {
         URL[] urls = ((URLClassLoader) PatcherExtension.class.getClassLoader()).getURLs();
 
-        ArrayList<String> list = new ArrayList<String>();
+        ArrayList<String> list = new ArrayList<>();
         for (URL url : urls)
         {
             list.add(url.getPath());
@@ -222,12 +222,12 @@ public class Constants
 
     public static URL[] toUrls(FileCollection collection) throws MalformedURLException
     {
-        ArrayList<URL> urls = new ArrayList<URL>();
+        ArrayList<URL> urls = new ArrayList<>();
 
         for (File file : collection.getFiles())
             urls.add(file.toURI().toURL());
 
-        return urls.toArray(new URL[urls.size()]);
+        return urls.toArray(new URL[0]);
     }
 
     public static File getMinecraftDirectory()
@@ -360,7 +360,7 @@ public class Constants
 
     public static List<String> hashAll(File file)
     {
-        LinkedList<String> list = new LinkedList<String>();
+        LinkedList<String> list = new LinkedList<>();
 
         if (file.isDirectory())
         {
@@ -377,7 +377,7 @@ public class Constants
     {
         try
         {
-            InputStream fis = new FileInputStream(file);
+            InputStream fis = java.nio.file.Files.newInputStream(file.toPath());
             byte[] array = ByteStreams.toByteArray(fis);
             fis.close();
 
@@ -393,7 +393,7 @@ public class Constants
 
     public static String hashZip(File file, String function)
     {
-        try (ZipInputStream zin = new ZipInputStream(new FileInputStream(file)))
+        try (ZipInputStream zin = new ZipInputStream(java.nio.file.Files.newInputStream(file.toPath())))
         {
             MessageDigest hasher = MessageDigest.getInstance(function);
             ZipEntry entry;
@@ -407,13 +407,12 @@ public class Constants
             byte[] hash = hasher.digest();
 
             // convert to string
-            String result = "";
+            StringBuilder result = new StringBuilder();
 
-            for (int i = 0; i < hash.length; i++)
-            {
-                result += Integer.toString((hash[i] & 0xff) + 0x100, 16).substring(1);
+            for (byte b : hash) {
+                result.append(Integer.toString((b & 0xff) + 0x100, 16).substring(1));
             }
-            return result;
+            return result.toString();
         }
         catch (Exception e)
         {
@@ -440,13 +439,12 @@ public class Constants
             MessageDigest complete = MessageDigest.getInstance(function);
             byte[] hash = complete.digest(bytes);
 
-            String result = "";
+            StringBuilder result = new StringBuilder();
 
-            for (int i = 0; i < hash.length; i++)
-            {
-                result += Integer.toString((hash[i] & 0xff) + 0x100, 16).substring(1);
+            for (byte b : hash) {
+                result.append(Integer.toString((b & 0xff) + 0x100, 16).substring(1));
             }
-            return result;
+            return result.toString();
         }
         catch (Exception e)
         {

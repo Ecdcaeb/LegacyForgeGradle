@@ -22,8 +22,8 @@ package net.minecraftforge.gradle.tasks;
 import groovy.lang.Closure;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
@@ -41,6 +41,7 @@ import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.util.PatternFilterable;
 import org.gradle.api.tasks.util.PatternSet;
+import org.jetbrains.annotations.NotNull;
 
 public class SplitJarTask extends CachedTask implements PatternFilterable
 {
@@ -73,20 +74,20 @@ public class SplitJarTask extends CachedTask implements PatternFilterable
         out2.getParentFile().mkdirs();
 
         // begin reading jar
-        try (JarOutputStream zout1 = new JarOutputStream(new FileOutputStream(out1));
-             JarOutputStream zout2 = new JarOutputStream(new FileOutputStream(out2)))
+        try (JarOutputStream zout1 = new JarOutputStream(Files.newOutputStream(out1.toPath()));
+             JarOutputStream zout2 = new JarOutputStream(Files.newOutputStream(out2.toPath())))
         {
 
             getProject().zipTree(input).visit(new FileVisitor() {
 
                 @Override
-                public void visitDir(FileVisitDetails details)
+                public void visitDir(@NotNull FileVisitDetails details)
                 {
                     // ignore directories
                 }
 
                 @Override
-                public void visitFile(FileVisitDetails details)
+                public void visitFile(@NotNull FileVisitDetails details)
                 {
                     JarEntry entry = new JarEntry(details.getPath());
                     entry.setSize(details.getSize());
@@ -146,76 +147,86 @@ public class SplitJarTask extends CachedTask implements PatternFilterable
         this.outSecond = outSecond;
     }
 
+    @NotNull
     @Override
-    public PatternFilterable exclude(String... arg0)
+    public PatternFilterable exclude(@NotNull String... arg0)
     {
         return pattern.exclude(arg0);
     }
 
+    @NotNull
     @Override
-    public PatternFilterable exclude(Iterable<String> arg0)
+    public PatternFilterable exclude(@NotNull Iterable<String> arg0)
     {
         return pattern.exclude(arg0);
     }
 
+    @NotNull
     @Override
-    public PatternFilterable exclude(Spec<FileTreeElement> arg0)
+    public PatternFilterable exclude(@NotNull Spec<FileTreeElement> arg0)
     {
         return pattern.exclude(arg0);
     }
 
+    @NotNull
     @Override
-    @SuppressWarnings("rawtypes")
-    public PatternFilterable exclude(Closure arg0)
+    public PatternFilterable exclude(@NotNull Closure arg0)
     {
         return pattern.exclude(arg0);
     }
 
+    @NotNull
     @Override
     public Set<String> getExcludes()
     {
         return pattern.getExcludes();
     }
 
+    @NotNull
     @Override
     public Set<String> getIncludes()
     {
         return pattern.getIncludes();
     }
 
+    @NotNull
     @Override
-    public PatternFilterable include(String... arg0)
+    public PatternFilterable include(@NotNull String... arg0)
     {
         return pattern.include(arg0);
     }
 
+    @NotNull
     @Override
-    public PatternFilterable include(Iterable<String> arg0)
+    public PatternFilterable include(@NotNull Iterable<String> arg0)
     {
         return pattern.include(arg0);
     }
 
+    @NotNull
     @Override
-    public PatternFilterable include(Spec<FileTreeElement> arg0)
+    public PatternFilterable include(@NotNull Spec<FileTreeElement> arg0)
     {
         return pattern.include(arg0);
     }
 
+    @NotNull
     @Override
-    @SuppressWarnings("rawtypes")
-    public PatternFilterable include(Closure arg0)
+    public PatternFilterable include(@NotNull Closure arg0)
     {
         return pattern.include(arg0);
     }
 
+    @NotNull
     @Override
-    public PatternFilterable setExcludes(Iterable<String> arg0)
+    public PatternFilterable setExcludes(@NotNull Iterable<String> arg0)
     {
         return pattern.setExcludes(arg0);
     }
 
+    @NotNull
     @Override
-    public PatternFilterable setIncludes(Iterable<String> arg0)
+    public PatternFilterable setIncludes(@NotNull Iterable<String> arg0)
     {
         return pattern.setIncludes(arg0);
     }

@@ -20,8 +20,6 @@
 package net.minecraftforge.gradle.user;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Set;
 import java.util.jar.JarOutputStream;
@@ -103,26 +101,26 @@ public class TaskRecompileMc extends CachedTask
     private static String getExtPath()
     {
         String currentExtDirs = System.getProperty("java.ext.dirs");
-        String newExtDirs = "";
+        StringBuilder newExtDirs = new StringBuilder();
         String[] parts = currentExtDirs.split(File.pathSeparator);
         if (parts.length > 0) {
             String lastPart = parts[parts.length - 1];
             for (String part : parts) {
                 if (!part.equals("/System/Library/Java/Extensions")) {
-                    newExtDirs += part;
+                    newExtDirs.append(part);
                     if (!part.equals(lastPart)) {
-                        newExtDirs += File.pathSeparator;
+                        newExtDirs.append(File.pathSeparator);
                     }
                 }
             }
         }
-        System.setProperty("java.ext.dirs", newExtDirs);
-        return newExtDirs;
+        System.setProperty("java.ext.dirs", newExtDirs.toString());
+        return newExtDirs.toString();
     }
 
     private static void extractSources(File tempDir, File inJar) throws IOException
     {
-        try (ZipInputStream zin = new ZipInputStream(new FileInputStream(inJar)))
+        try (ZipInputStream zin = new ZipInputStream(java.nio.file.Files.newInputStream(inJar.toPath())))
         {
             ZipEntry entry;
 
@@ -145,7 +143,7 @@ public class TaskRecompileMc extends CachedTask
         Set<String> elementsAdded = Sets.newHashSet();
 
         // make output
-        JarOutputStream zout = new JarOutputStream(new FileOutputStream(outJar));
+        JarOutputStream zout = new JarOutputStream(java.nio.file.Files.newOutputStream(outJar.toPath()));
 
         Visitor visitor = new Visitor(zout, elementsAdded);
 

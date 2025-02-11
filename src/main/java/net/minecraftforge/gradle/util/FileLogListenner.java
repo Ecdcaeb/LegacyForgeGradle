@@ -21,7 +21,6 @@ package net.minecraftforge.gradle.util;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
@@ -32,6 +31,7 @@ import org.gradle.api.invocation.Gradle;
 import org.gradle.api.logging.StandardOutputListener;
 
 import com.google.common.io.Files;
+import org.jetbrains.annotations.NotNull;
 
 public class FileLogListenner implements StandardOutputListener, BuildListener
 {
@@ -41,7 +41,7 @@ public class FileLogListenner implements StandardOutputListener, BuildListener
     public FileLogListenner(File file)
     {
         out = file;
-        
+
         try
         {
             if (out.exists())
@@ -53,10 +53,6 @@ public class FileLogListenner implements StandardOutputListener, BuildListener
             
             writer = Files.newWriter(out, Charset.defaultCharset());
         }
-        catch (FileNotFoundException e)
-        {
-            e.printStackTrace();
-        }
         catch (IOException e)
         {
             e.printStackTrace();
@@ -64,10 +60,10 @@ public class FileLogListenner implements StandardOutputListener, BuildListener
     }
     
     @Override
-    public void projectsLoaded(Gradle arg0) {}
+    public void projectsLoaded(@NotNull Gradle arg0) {}
     
     @Override
-    public void buildStarted(Gradle arg0) {}
+    public void buildStarted(@NotNull Gradle arg0) {}
 
     @Override
     public void onOutput(CharSequence arg0)
@@ -83,7 +79,7 @@ public class FileLogListenner implements StandardOutputListener, BuildListener
     }
 
     @Override
-    public void buildFinished(BuildResult arg0)
+    public void buildFinished(@NotNull BuildResult arg0)
     {
         try
         {
@@ -96,9 +92,9 @@ public class FileLogListenner implements StandardOutputListener, BuildListener
     }
 
     @Override
-    public void projectsEvaluated(Gradle arg0) {}  // nothing
+    public void projectsEvaluated(@NotNull Gradle arg0) {}  // nothing
     
     @Override
-    public void settingsEvaluated(Settings arg0) {} // nothing
+    public void settingsEvaluated(@NotNull Settings arg0) {} // nothing
 
 }

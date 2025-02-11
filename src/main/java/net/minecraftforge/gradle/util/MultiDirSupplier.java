@@ -20,11 +20,10 @@
 package net.minecraftforge.gradle.util;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
@@ -55,7 +54,7 @@ public class MultiDirSupplier implements InputSupplier, OutputSupplier
         File f = getFileFor(relPath);
         try
         {
-            return f == null ? null : new FileOutputStream(f);
+            return f == null ? null : Files.newOutputStream(f.toPath());
         }
         catch (IOException e)
         {
@@ -76,7 +75,7 @@ public class MultiDirSupplier implements InputSupplier, OutputSupplier
         File f = getFileFor(relPath);
         try
         {
-            return f == null ? null : new FileInputStream(f);
+            return f == null ? null : Files.newInputStream(f.toPath());
         }
         catch (IOException e)
         {
@@ -88,15 +87,15 @@ public class MultiDirSupplier implements InputSupplier, OutputSupplier
     public List<String> gatherAll(String endFilter)
     {
         // stolen from the FolderSupplier.
-        LinkedList<String> out = new LinkedList<String>();
-        Stack<File> dirStack = new Stack<File>();
+        LinkedList<String> out = new LinkedList<>();
+        Stack<File> dirStack = new Stack<>();
 
         for (File root : dirs)
         {
             dirStack.push(root);
             int rootCut = root.getAbsolutePath().length() + 1; // +1 for the slash
 
-            while (dirStack.size() > 0)
+            while (!dirStack.isEmpty())
             {
                 for (File f : dirStack.pop().listFiles())
                 {

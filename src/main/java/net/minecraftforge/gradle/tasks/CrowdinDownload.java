@@ -22,7 +22,6 @@ package net.minecraftforge.gradle.tasks;
 import groovy.lang.Closure;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -47,6 +46,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.io.CharStreams;
 import com.google.common.io.Files;
 import com.google.common.io.LineProcessor;
+import org.jetbrains.annotations.NotNull;
 
 public class CrowdinDownload extends DefaultTask
 {
@@ -67,30 +67,24 @@ public class CrowdinDownload extends DefaultTask
     {
         super();
 
-        this.onlyIf(new Spec() {
+        this.onlyIf((Spec) arg0 -> {
+            CrowdinDownload task = (CrowdinDownload) arg0;
 
-            @Override
-            public boolean isSatisfiedBy(Object arg0)
+            // no API key? skip
+            if (Strings.isNullOrEmpty(task.getApiKey()))
             {
-                CrowdinDownload task = (CrowdinDownload) arg0;
-
-                // no API key? skip
-                if (Strings.isNullOrEmpty(task.getApiKey()))
-                {
-                    getLogger().lifecycle("Crowdin api key is null, skipping task.");
-                    return false;
-                }
-
-                // offline? skip.
-                if (getProject().getGradle().getStartParameter().isOffline())
-                {
-                    getLogger().lifecycle("Gradle is in offline mode, skipping task.");
-                    return false;
-                }
-
-                return true;
+                getLogger().lifecycle("Crowdin api key is null, skipping task.");
+                return false;
             }
 
+            // offline? skip.
+            if (getProject().getGradle().getStartParameter().isOffline())
+            {
+                getLogger().lifecycle("Gradle is in offline mode, skipping task.");
+                return false;
+            }
+
+            return true;
         });
     }
 
@@ -146,7 +140,7 @@ public class CrowdinDownload extends DefaultTask
             {
                 Files.createParentDirs(output);
                 Files.touch(output);
-                zOut = new ZipOutputStream(new FileOutputStream(output));
+                zOut = new ZipOutputStream(java.nio.file.Files.newOutputStream(output.toPath()));
             }
 
             ZipEntry entry;
@@ -165,7 +159,7 @@ public class CrowdinDownload extends DefaultTask
                         final Splitter SPLITTER = Splitter.on('=').limit(2);
 
                         @Override
-                        public boolean processLine(String line) throws IOException
+                        public boolean processLine(@NotNull String line) throws IOException
                         {
                             String[] pts = Iterables.toArray(SPLITTER.split(line), String.class);
                             if (pts.length == 2)
@@ -189,7 +183,7 @@ public class CrowdinDownload extends DefaultTask
 
                     if (extract)
                     {
-                        getLogger().debug("Extracting file: " + entry.getName());
+                        getLogger().debug("Extracting file: {}", entry.getName());
                         File out = new File(output, entry.getName());
                         Files.createParentDirs(out);
                         Files.touch(out);

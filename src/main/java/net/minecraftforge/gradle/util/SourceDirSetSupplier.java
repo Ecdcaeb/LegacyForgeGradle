@@ -26,8 +26,10 @@ import net.minecraftforge.srg2source.util.io.OutputSupplier;
 import org.gradle.api.file.FileVisitDetails;
 import org.gradle.api.file.FileVisitor;
 import org.gradle.api.file.SourceDirectorySet;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 
@@ -38,10 +40,10 @@ public class SourceDirSetSupplier implements InputSupplier, OutputSupplier
     public SourceDirSetSupplier(SourceDirectorySet set)
     {
         set.visit(new FileVisitor() {
-            @Override public void visitDir(FileVisitDetails fileVisitDetails) { }
+            @Override public void visitDir(@NotNull FileVisitDetails fileVisitDetails) { }
 
             @Override
-            public void visitFile(FileVisitDetails fileVisitDetails) {
+            public void visitFile(@NotNull FileVisitDetails fileVisitDetails) {
                 String absolute = fileVisitDetails.getFile().getAbsolutePath();
                 String path = fileVisitDetails.getPath();
                 File root = new File(absolute.substring(0, absolute.length() - path.length()));
@@ -62,7 +64,7 @@ public class SourceDirSetSupplier implements InputSupplier, OutputSupplier
         File f = getFile(relPath);
         try
         {
-            return f == null ? null : new FileInputStream(f);
+            return f == null ? null : Files.newInputStream(f.toPath());
         }
         catch (IOException e)
         {
@@ -88,7 +90,7 @@ public class SourceDirSetSupplier implements InputSupplier, OutputSupplier
         File f = getFile(relPath);
         try
         {
-            return f == null ? null : new FileOutputStream(f);
+            return f == null ? null : Files.newOutputStream(f.toPath());
         }
         catch (IOException e)
         {

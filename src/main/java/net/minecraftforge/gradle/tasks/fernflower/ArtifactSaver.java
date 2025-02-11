@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -75,7 +76,7 @@ class ArtifactSaver implements IResultSaver {
     public void saveClassFile(String path, String qualifiedName, String entryName, String content, int[] mapping) {
         File file = new File(getAbsolutePath(path), entryName);
         try {
-            try (Writer out = new OutputStreamWriter(new FileOutputStream(file), Charsets.UTF_8))
+            try (Writer out = new OutputStreamWriter(Files.newOutputStream(file.toPath()), Charsets.UTF_8))
             {
                 out.write(content);
             }

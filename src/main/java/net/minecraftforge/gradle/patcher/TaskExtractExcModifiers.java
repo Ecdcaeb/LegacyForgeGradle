@@ -21,7 +21,6 @@ package net.minecraftforge.gradle.patcher;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -70,7 +69,7 @@ class TaskExtractExcModifiers extends DefaultTask
         output.createNewFile();
 
         try (BufferedWriter writer = Files.newWriter(output, Charsets.UTF_8);
-            ZipInputStream zin = new ZipInputStream(new FileInputStream(input)))
+            ZipInputStream zin = new ZipInputStream(java.nio.file.Files.newInputStream(input.toPath())))
         {
             ZipEntry entry;
 
@@ -84,7 +83,7 @@ class TaskExtractExcModifiers extends DefaultTask
                 if (!entryName.endsWith(".class") || !entryName.startsWith(matchingPrefix))
                     continue;
 
-                getProject().getLogger().debug("Processing " + entryName);
+                getProject().getLogger().debug("Processing {}", entryName);
                 byte[] entryData = ByteStreams.toByteArray(zin);
 
                 ClassReader cr = new ClassReader(entryData);

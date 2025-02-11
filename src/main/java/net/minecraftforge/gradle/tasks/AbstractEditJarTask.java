@@ -20,9 +20,8 @@
 package net.minecraftforge.gradle.tasks;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
@@ -60,7 +59,7 @@ public abstract class AbstractEditJarTask extends CachedTask
 
         if (storeJarInRam())
         {
-            getLogger().debug("Reading jar: " + resolvedInJar);
+            getLogger().debug("Reading jar: {}", resolvedInJar);
 
             Map<String, String> sourceMap = Maps.newHashMap();
             Map<String, byte[]> resourceMap = Maps.newHashMap();
@@ -71,7 +70,7 @@ public abstract class AbstractEditJarTask extends CachedTask
 
             saveJar(resolvedOutJar, sourceMap, resourceMap);
 
-            getLogger().debug("Saving jar: " + resolvedOutJar);
+            getLogger().debug("Saving jar: {}", resolvedOutJar);
         }
         else
         {
@@ -91,7 +90,7 @@ public abstract class AbstractEditJarTask extends CachedTask
      * Called as the .java files of the jar are read from the jar
      * @param name name of the current entry
      * @param file current contents of the entry
-     * @return new new contents of the file
+     * @return new contents of the file
      * @throws Exception as a convenience for any potential exceptions thrown in this method
      */
     public abstract String asRead(String name, String file) throws Exception;
@@ -134,14 +133,14 @@ public abstract class AbstractEditJarTask extends CachedTask
 
     final void readAndStoreJarInRam(File jar, Map<String, String> sourceMap, Map<String, byte[]> resourceMap) throws Exception
     {
-        try (ZipInputStream zin = new ZipInputStream(new FileInputStream(jar)))
+        try (ZipInputStream zin = new ZipInputStream(Files.newInputStream(jar.toPath())))
         {
             ZipEntry entry;
             String fileStr;
 
             while ((entry = zin.getNextEntry()) != null)
             {
-                // ignore META-INF, it shouldnt be here. If it is we remove it from the output jar.
+                // ignore META-INF, it shouldn't be here. If it is we remove it from the output jar.
                 if (entry.getName().contains("META-INF"))
                 {
                     continue;
@@ -169,7 +168,7 @@ public abstract class AbstractEditJarTask extends CachedTask
     {
         output.getParentFile().mkdirs();
 
-        try (JarOutputStream zout = new JarOutputStream(new FileOutputStream(output)))
+        try (JarOutputStream zout = new JarOutputStream(Files.newOutputStream(output.toPath())))
         {
 
             // write in resources
@@ -196,7 +195,7 @@ public abstract class AbstractEditJarTask extends CachedTask
 
     /**
      * Checks whether the given entry should be treated as a source file
-     *
+     * <p> <p>
      * This can be overridden to change the types your task treats as source files
      *
      * @param entry the entry to check
@@ -219,8 +218,8 @@ public abstract class AbstractEditJarTask extends CachedTask
     private void copyJar(File input, File output) throws Exception
     {
         // begin reading jar
-        try (ZipInputStream zin = new ZipInputStream(new FileInputStream(input));
-             JarOutputStream zout = new JarOutputStream(new FileOutputStream(output)))
+        try (ZipInputStream zin = new ZipInputStream(Files.newInputStream(input.toPath()));
+             JarOutputStream zout = new JarOutputStream(Files.newOutputStream(output.toPath())))
         {
             ZipEntry entry;
             while ((entry = zin.getNextEntry()) != null)
@@ -252,7 +251,7 @@ public abstract class AbstractEditJarTask extends CachedTask
                 }
                 catch (ZipException ex)
                 {
-                    getLogger().debug("Duplicate zip entry " + entry.getName() + " in " + input + " writing " + output);
+                    getLogger().debug("Duplicate zip entry {} in {} writing {}", entry.getName(), input, output);
                 }
             }
 

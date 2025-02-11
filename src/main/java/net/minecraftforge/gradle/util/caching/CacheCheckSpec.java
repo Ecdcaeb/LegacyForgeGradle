@@ -79,15 +79,15 @@ public class CacheCheckSpec implements Spec<Task>
                 if (!calcMD5.equals(foundMD5))
                 {
                     logger.info(" Corrupted Cache!");
-                    logger.info("Checksums found: " + foundMD5);
-                    logger.info("Checksums calculated: " + calcMD5);
+                    logger.info("Checksums found: {}", foundMD5);
+                    logger.info("Checksums calculated: {}", calcMD5);
                     file.delete();
                     CacheUtil.getHashFile(file).delete();
                     return true;
                 }
 
-                logger.debug("Checksums found: " + foundMD5);
-                logger.debug("Checksums calculated: " + calcMD5);
+                logger.debug("Checksums found: {}", foundMD5);
+                logger.debug("Checksums calculated: {}", calcMD5);
 
             }
             // error? spit it and do the task.

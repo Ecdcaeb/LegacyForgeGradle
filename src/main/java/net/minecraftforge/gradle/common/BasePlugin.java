@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 
 import net.minecraftforge.gradle.util.json.version.ManifestVersion;
-import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -47,7 +46,6 @@ import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.plugins.ExtraPropertiesExtension;
-import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.Delete;
 import org.gradle.testfixtures.ProjectBuilder;
 
@@ -59,7 +57,6 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import com.google.gson.reflect.TypeToken;
@@ -87,6 +84,8 @@ import net.minecraftforge.gradle.util.json.fgversion.FGBuildStatus;
 import net.minecraftforge.gradle.util.json.fgversion.FGVersion;
 import net.minecraftforge.gradle.util.json.fgversion.FGVersionWrapper;
 import net.minecraftforge.gradle.util.json.version.Version;
+import org.jetbrains.annotations.NotNull;
+
 public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Project>
 {
     private static final Logger LOGGER = Logging.getLogger(BasePlugin.class);
@@ -100,7 +99,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
-    public final void apply(Project arg)
+    public final void apply(@NotNull Project arg)
     {
         project = arg;
 
@@ -168,13 +167,10 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
         }
 
         // repos
-        project.allprojects(new Action<Project>() {
-            public void execute(Project proj)
-            {
-                addMavenRepo(proj, "forge", URL_FORGE_MAVEN);
-                proj.getRepositories().mavenCentral();
-                addMavenRepo(proj, "minecraft", URL_LIBRARY);
-            }
+        project.allprojects(proj -> {
+            addMavenRepo(proj, "forge", URL_FORGE_MAVEN);
+            proj.getRepositories().mavenCentral();
+            addMavenRepo(proj, "minecraft", URL_LIBRARY);
         });
 
         // do Mcp Snapshots Stuff
@@ -194,16 +190,12 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
         project.getConfigurations().getByName(CONFIG_MC_DEPS).extendsFrom(project.getConfigurations().getByName(CONFIG_MC_DEPS_CLIENT));
 
         // after eval
-        project.afterEvaluate(new Action<Project>() {
-            @Override
-            public void execute(Project project)
-            {
-                // dont continue if its already failed!
-                if (project.getState().getFailure() != null)
-                    return;
+        project.afterEvaluate(project -> {
+            // dont continue if its already failed!
+            if (project.getState().getFailure() != null)
+                return;
 
-                afterEvaluate();
-            }
+            afterEvaluate();
         });
 
         // some default tasks
@@ -359,13 +351,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
         Configuration buildscriptClasspath = null;
         while (parent != null && fgDepTemp == null) {
             buildscriptClasspath = parent.getBuildscript().getConfigurations().getByName("classpath");
-            fgDepTemp = Iterables.getFirst(buildscriptClasspath.getDependencies().matching(new Spec<Dependency>() {
-                @Override
-                public boolean isSatisfiedBy(Dependency element)
-                {
-                    return element.getName().equals(GROUP_FG);
-                }
-            }), null);
+            fgDepTemp = Iterables.getFirst(buildscriptClasspath.getDependencies().matching(element -> element.getName().equals(GROUP_FG)), null);
             parent = parent.getParent();
         }
         final Dependency fgDep = fgDepTemp;
@@ -375,13 +361,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
             return;
         }
         // This adds all of the dependencies of FG
-        deps.add(CONFIG_FFI_DEPS, project.files(buildscriptClasspath.getResolvedConfiguration().getFiles(new Spec<Dependency>() {
-            @Override
-            public boolean isSatisfiedBy(Dependency element)
-            {
-                return element.contentEquals(fgDep);
-            }
-        })));
+        deps.add(CONFIG_FFI_DEPS, project.files(buildscriptClasspath.getResolvedConfiguration().getFiles(element -> element.contentEquals(fgDep))));
         // And this adds the groovy dep. FFI shouldn't need Gradle.
         deps.add(CONFIG_FFI_DEPS, deps.localGroovy());
     }
@@ -645,25 +625,17 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
 
     public MavenArtifactRepository addMavenRepo(Project proj, final String name, final String url)
     {
-        return proj.getRepositories().maven(new Action<MavenArtifactRepository>() {
-            @Override
-            public void execute(MavenArtifactRepository repo)
-            {
-                repo.setName(name);
-                repo.setUrl(url);
-            }
+        return proj.getRepositories().maven(repo -> {
+            repo.setName(name);
+            repo.setUrl(url);
         });
     }
 
     public FlatDirectoryArtifactRepository addFlatRepo(Project proj, final String name, final Object... dirs)
     {
-        return proj.getRepositories().flatDir(new Action<FlatDirectoryArtifactRepository>() {
-            @Override
-            public void execute(FlatDirectoryArtifactRepository repo)
-            {
-                repo.setName(name);
-                repo.dirs(dirs);
-            }
+        return proj.getRepositories().flatDir(repo -> {
+            repo.setName(name);
+            repo.dirs(dirs);
         });
     }
 
@@ -740,7 +712,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
                 }
                 else
                 {
-                    LOGGER.error("Etag download for " + strUrl + " failed with code " + con.getResponseCode());
+                    LOGGER.error("Etag download for {} failed with code {}", strUrl, con.getResponseCode());
                 }
 
                 con.disconnect();
@@ -790,7 +762,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
             }
             catch (IOException e)
             {
-                LOGGER.error(file + " could not be parsed");
+                LOGGER.error("{} could not be parsed", file);
                 throw new RuntimeException(e);
             }
         }
@@ -852,7 +824,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
             .weakValues()
             .build(
                     new CacheLoader<String, TokenReplacer>() {
-                        public TokenReplacer load(String key)
+                        public TokenReplacer load(@NotNull String key)
                         {
                             return new TokenReplacer(replacer, key);
                         }
@@ -861,7 +833,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
             .weakValues()
             .build(
                     new CacheLoader<String, DelayedString>() {
-                        public DelayedString load(String key)
+                        public DelayedString load(@NotNull String key)
                         {
                             return new DelayedString(CacheLoader.class, replacerCache.getUnchecked(key));
                         }
@@ -870,7 +842,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
             .weakValues()
             .build(
                     new CacheLoader<String, DelayedFile>() {
-                        public DelayedFile load(String key)
+                        public DelayedFile load(@NotNull String key)
                         {
                             return new DelayedFile(CacheLoader.class, project, replacerCache.getUnchecked(key));
                         }

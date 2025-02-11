@@ -48,19 +48,12 @@ public class FmlCleanup
     private static final Pattern VAR_CALL = Pattern.compile("(?i)[a-z_$][a-z0-9_\\[\\]]+ var\\d+(?:x)*");
     private static final Pattern VAR = Pattern.compile("var\\d+(?:x)*");
 
-    private static final Comparator<String> COMPARATOR = new Comparator<String>()
-    {
-        @Override
-        public int compare(String str1, String str2)
-        {
-            return str2.length() - str1.length();
-        }
-    };
+    private static final Comparator<String> COMPARATOR = (str1, str2) -> str2.length() - str1.length();
 
     public static String renameClass(String text)
     {
         String[] lines = text.split("(\r\n|\r|\n)");
-        List<String> output = new ArrayList<String>(lines.length);
+        List<String> output = new ArrayList<>(lines.length);
         MethodInfo method = null;
 
         for (String line : lines)
@@ -184,19 +177,14 @@ public class FmlCleanup
                     unnamed.put(split[1], split[0]);
             }
 
-            if (unnamed.size() > 0)
+            if (!unnamed.isEmpty())
             {
                 // We sort the var## names because FF is non-deterministic and sometimes decompiles the declarations in different orders.
-                List<String> sorted = new ArrayList<String>(unnamed.keySet());
-                Collections.sort(sorted, new Comparator<String>()
-                {
-                    @Override
-                    public int compare(String o1, String o2)
-                    {
-                        if (o1.length() < o2.length()) return -1;
-                        if (o1.length() > o2.length()) return  1;
-                        return o1.compareTo(o2);
-                    }
+                List<String> sorted = new ArrayList<>(unnamed.keySet());
+                sorted.sort((o1, o2) -> {
+                    if (o1.length() < o2.length()) return -1;
+                    if (o1.length() > o2.length()) return 1;
+                    return o1.compareTo(o2);
                 });
                 for (String s : sorted)
                 {
@@ -215,10 +203,10 @@ public class FmlCleanup
 
             String body = buf.toString();
 
-            if (renames.size() > 0)
+            if (!renames.isEmpty())
             {
-                List<String> sortedKeys = new ArrayList<String>(renames.keySet());
-                Collections.sort(sortedKeys, COMPARATOR);
+                List<String> sortedKeys = new ArrayList<>(renames.keySet());
+                sortedKeys.sort(COMPARATOR);
 
                 // closure changes the sort, to sort by the return value of the closure.
                 for (String key : sortedKeys)
@@ -239,7 +227,7 @@ public class FmlCleanup
 
     private FmlCleanup()
     {
-        last = new HashMap<String, Holder>();
+        last = new HashMap<>();
         last.put("byte", new Holder(0, false, "b"));
         last.put("char", new Holder(0, false, "c"));
         last.put("short", new Holder(1, false, "short"));
@@ -257,7 +245,7 @@ public class FmlCleanup
         last.put("Package", new Holder(0, true, "opackage"));
         last.put("Enum", new Holder(0, true, "oenum"));
 
-        remap = new HashMap<String, String>();
+        remap = new HashMap<>();
         remap.put("long", "int");
     }
 
@@ -271,10 +259,7 @@ public class FmlCleanup
         }
 
         remap = Maps.newHashMap();
-        for (Entry<String, String> e : parent.remap.entrySet())
-        {
-            remap.put(e.getKey(), e.getValue());
-        }
+        remap.putAll(parent.remap);
     }
 
     private String getName(String type, String var)
@@ -350,7 +335,7 @@ public class FmlCleanup
         return name;
     }
 
-    private class Holder
+    private static class Holder
     {
         public int id;
         public boolean skip_zero;

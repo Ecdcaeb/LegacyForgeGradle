@@ -21,7 +21,6 @@ package net.minecraftforge.gradle.patcher;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URLClassLoader;
@@ -62,7 +61,7 @@ class TaskReobfuscate extends DefaultTask
     //@formatter: on
     
     @Input
-    private LinkedList<String> extraSrg = new LinkedList<String>();
+    private LinkedList<String> extraSrg = new LinkedList<>();
     
     @InputFiles
     private final List<Object> libs = Lists.newArrayList();

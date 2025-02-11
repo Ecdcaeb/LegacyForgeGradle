@@ -98,7 +98,7 @@ public class PostDecompileTask extends AbstractEditJarTask
 
         oglFixer = new GLConstantFixer();
     }
-    class PatchAttempt {
+    static class PatchAttempt {
         public PatchAttempt(List<PatchReport> report, String file) {
             super();
             this.report = report;
@@ -110,7 +110,7 @@ public class PostDecompileTask extends AbstractEditJarTask
     @Override
     public String asRead(String name, String file) throws Exception
     {
-        getLogger().debug("Processing file: " + name);
+        getLogger().debug("Processing file: {}", name);
 
         file = FFPatcher.processFile(file);
 
@@ -174,7 +174,7 @@ public class PostDecompileTask extends AbstractEditJarTask
             getLogger().info("Adding package-infos");
             for (String pkg : this.seenPackages)
             {
-                getLogger().info("  " + pkg + "/package-info.java");
+                getLogger().info("  {}/package-info.java", pkg);
                 jarOut.putNextEntry(new ZipEntry(pkg + "/package-info.java"));
                 jarOut.write(template.replaceAll("\\{PACKAGE\\}", pkg.replace('/', '.')).getBytes());
                 jarOut.closeEntry();
@@ -185,13 +185,13 @@ public class PostDecompileTask extends AbstractEditJarTask
         {
             String root = common.getAbsolutePath().replace('\\', '/');
             if (!root.endsWith("/")) root += '/';
-            getLogger().info("Inject Root: " + root);
+            getLogger().info("Inject Root: {}", root);
 
             for (File f : this.getProject().fileTree(common))
             {
                 String full = f.getAbsolutePath().replace('\\', '/');
                 String name = full.substring(root.length());
-                getLogger().info("  Injecting: " + name);
+                getLogger().info("  Injecting: {}", name);
                 jarOut.putNextEntry(new ZipEntry(name));
                 jarOut.write(Resources.toByteArray(f.toURI().toURL()));
                 jarOut.closeEntry();
@@ -210,13 +210,13 @@ public class PostDecompileTask extends AbstractEditJarTask
                 if (!report.getStatus().isSuccess())
                 {
                     //getLogger().log(LogLevel.ERROR, "Patching failed: " + report.getTarget(), report.getFailure());
-                    getLogger().error("Patching failed: " + report.getTarget());
+                    getLogger().error("Patching failed: {}", report.getTarget());
 
                     for (HunkReport hunk : report.getHunks())
                     {
                         if (!hunk.getStatus().isSuccess())
                         {
-                            getLogger().error("Hunk " + hunk.getHunkID() + " failed! " + report.getFailure().getMessage());
+                            getLogger().error("Hunk {} failed! {}", hunk.getHunkID(), report.getFailure().getMessage());
                             getLogger().error(Joiner.on("\n").join(hunk.hunk.lines));
                             getLogger().error("File state");
                             getLogger().error(attempt.file);
@@ -234,13 +234,13 @@ public class PostDecompileTask extends AbstractEditJarTask
                     {
                         if (!hunk.getStatus().isSuccess())
                         {
-                            getLogger().info("Hunk " + hunk.getHunkID() + " fuzzed " + hunk.getFuzz() + "!");
+                            getLogger().info("Hunk {} fuzzed {}!", hunk.getHunkID(), hunk.getFuzz());
                         }
                     }
                 }
                 else
                 {
-                    getLogger().debug("Patch succeeded: " + report.getTarget());
+                    getLogger().debug("Patch succeeded: {}", report.getTarget());
                 }
             }
         }
@@ -258,7 +258,7 @@ public class PostDecompileTask extends AbstractEditJarTask
         boolean success = true;
         for (File f : files)
         {
-            logger.debug("trying MCP patch " + f.getName());
+            logger.debug("trying MCP patch {}", f.getName());
             lastFile = f;
             patch = ContextualPatch.create(Files.asCharSource(f, Constants.CHARSET).read(), provider).setAccessC14N(true);
 
@@ -273,12 +273,12 @@ public class PostDecompileTask extends AbstractEditJarTask
                 }
             }
             if (success) {
-                logger.debug("accepted MCP patch " + f.getName());
+                logger.debug("accepted MCP patch {}", f.getName());
                 break;
             }
         }
         if (!success && lastFile != null) {
-            logger.debug("candidate MCP patch may fuzz " + lastFile.getName());
+            logger.debug("candidate MCP patch may fuzz {}", lastFile.getName());
         }
         return patch;
     }
@@ -331,7 +331,7 @@ public class PostDecompileTask extends AbstractEditJarTask
         @Override
         public List<String> getData(String target)
         {
-            List<String> out = new ArrayList<String>(data.size() + 5);
+            List<String> out = new ArrayList<>(data.size() + 5);
             out.addAll(data);
             return out;
         }

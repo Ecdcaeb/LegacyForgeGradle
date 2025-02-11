@@ -20,8 +20,6 @@
 package net.minecraftforge.gradle.user;
 
 import java.io.File;
-import java.io.FileFilter;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -58,13 +56,7 @@ public class TaskExtractDepAts extends DefaultTask
         outputDir.mkdirs(); // make sur eit exists
         
         // make a list of things to delete...
-        List<File> toDelete = Lists.newArrayList(outputDir.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File f)
-            {
-                return f.isFile();
-            }
-        }));
+        List<File> toDelete = Lists.newArrayList(outputDir.listFiles(f -> f.isFile()));
 
         Splitter splitter = Splitter.on(' ');
 
@@ -93,7 +85,7 @@ public class TaskExtractDepAts extends DefaultTask
 
 
                             try (InputStream istream = jar.getInputStream(entry);
-                                 OutputStream ostream = new FileOutputStream(outFile))
+                                 OutputStream ostream = java.nio.file.Files.newOutputStream(outFile.toPath()))
                             {
                                 ByteStreams.copy(istream, ostream);
                             }

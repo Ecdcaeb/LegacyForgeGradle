@@ -56,10 +56,7 @@ class TaskSubprojectCall extends DefaultTask
     public void doTask() throws IOException
     {
         // resolve replacements
-        for (Entry<String, Object> entry : replacements.entrySet())
-        {
-            replacements.put(entry.getKey(), Constants.resolveString(entry.getValue()).replace('\\', '/'));
-        }
+        replacements.replaceAll((k, v) -> Constants.resolveString(v).replace('\\', '/'));
         
         // extract extra initscripts
         List<File> initscripts = Lists.newArrayListWithCapacity(initResources.size());
@@ -92,7 +89,7 @@ class TaskSubprojectCall extends DefaultTask
                 .connect();
         
         //get args
-        ArrayList<String> args = new ArrayList<String>(5);
+        ArrayList<String> args = new ArrayList<>(5);
         args.addAll(Splitter.on(' ').splitToList(getCallLine()));
 
         for (File f : initscripts)
@@ -105,7 +102,7 @@ class TaskSubprojectCall extends DefaultTask
                 .setStandardOutput(System.out)
                 .setStandardInput(System.in)
                 .setStandardError(System.err)
-                .withArguments(args.toArray(new String[args.size()]))
+                .withArguments(args.toArray(new String[0]))
                 .setColorOutput(false)
                 .run();
         

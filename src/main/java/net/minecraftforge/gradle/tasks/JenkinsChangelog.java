@@ -22,12 +22,9 @@ package net.minecraftforge.gradle.tasks;
 import groovy.util.MapEntry;
 
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -166,36 +163,20 @@ public class JenkinsChangelog extends DefaultTask
             data = cleanJson(data, "{}"); //Empty entries, just for sanities sake
 
             List<Map<String, Object>> json = (List<Map<String, Object>>) new Gson().fromJson(data, Map.class).get("allBuilds");
-            Collections.sort(json, new Comparator<Map<String, Object>>()
-            {
-                @Override
-                public int compare(Map<String, Object> o1, Map<String, Object> o2)
-                {
-                    return (int) ((Double) o1.get("number") - (Double) o2.get("number"));
-                }
+            json.sort((o1, o2) -> (int) ((Double) o1.get("number") - (Double) o2.get("number")));
 
-            });
-
-            List<Entry<String, String>> items = new ArrayList<Entry<String, String>>();
+            List<Entry<String, String>> items = new ArrayList<>();
             Iterator<Map<String, Object>> bitr = json.iterator();
             while (bitr.hasNext())
             {
                 Map<String, Object> build = bitr.next();
 
                 List<Map<String, String>> actions = (List<Map<String, String>>) build.get("actions");
-                Iterator<Map<String, String>> itr = actions.iterator();
-                while (itr.hasNext())
-                {
-                    Map<String, String> map = itr.next();
-                    if (!map.containsKey("text") ||
+                actions.removeIf(map -> !map.containsKey("text") ||
                         map.get("text").contains("http") ||
-                        map.get("text").contains("href="))
-                    {
-                        itr.remove();
-                    }
-                }
+                        map.get("text").contains("href="));
 
-                if (actions.size() == 0)
+                if (actions.isEmpty())
                 {
                     build.put("version", versioned ? ((Double) build.get("number")).intValue() : getProject().getVersion());
                     versioned = true;
@@ -213,9 +194,9 @@ public class JenkinsChangelog extends DefaultTask
 
                 if (build.get("result").equals("SUCCESS"))
                 {
-                    if (items.size() == 0)
+                    if (items.isEmpty())
                         bitr.remove();
-                    items = new ArrayList<Entry<String, String>>();
+                    items = new ArrayList<>();
                 }
                 else
                 {
@@ -227,15 +208,7 @@ public class JenkinsChangelog extends DefaultTask
                 build.remove("actions");
             }
             //prettyPrint(json);
-            Collections.sort(json, new Comparator<Map<String, Object>>()
-            {
-                @Override
-                public int compare(Map<String, Object> o1, Map<String, Object> o2)
-                {
-                    return (int) ((Double) o2.get("number") - (Double) o1.get("number"));
-                }
-
-            });
+            json.sort((o1, o2) -> (int) ((Double) o2.get("number") - (Double) o1.get("number")));
             return json;
         }
         catch (Exception e)
@@ -243,7 +216,7 @@ public class JenkinsChangelog extends DefaultTask
             e.printStackTrace();
             getLogger().lifecycle(data);
         }
-        return new ArrayList<Map<String, Object>>();
+        return new ArrayList<>();
     }
 
     @SuppressWarnings("unchecked")
@@ -253,7 +226,7 @@ public class JenkinsChangelog extends DefaultTask
         try
         {
             Object ver = "";
-            if (builds.size() > 0)
+            if (!builds.isEmpty())
             {
                 ver = builds.get(0).get("number");
             }
@@ -269,7 +242,7 @@ public class JenkinsChangelog extends DefaultTask
             }
             build.put("version", versioned ? "Build " + ((Double) build.get("number")).intValue() : getProject().getVersion());
 
-            List<Entry<String, String>> items = new ArrayList<Entry<String, String>>();
+            List<Entry<String, String>> items = new ArrayList<>();
             for (Map<String, Object> e : (List<Map<String, Object>>) ((Map<String, Object>) build.get("changeSet")).get("items"))
             {
                 items.add(new MapEntry(((Map<String, String>) e.get("author")).get("fullName"), e.get("comment")));
@@ -350,7 +323,7 @@ public class JenkinsChangelog extends DefaultTask
             }
             catch (NumberFormatException e)
             {
-                getProject().getLogger().debug("Error reading target build: " + e.getMessage());
+                getProject().getLogger().debug("Error reading target build: {}", e.getMessage());
             }
         }
 

@@ -48,7 +48,7 @@ public class CurseProjectDep
             return false;
         }
         CurseProjectDep that = (CurseProjectDep) o;
-        return !(!Objects.equals(slug, that.slug));
+        return Objects.equals(slug, that.slug);
     }
 
     @Override

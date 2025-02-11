@@ -46,6 +46,7 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
@@ -122,7 +123,7 @@ public class ReobfExceptor
             Files.asCharSource(f, Charset.defaultCharset()).readLines( new LineProcessor<Object>()
             {
                 @Override
-                public boolean processLine(String line) throws IOException
+                public boolean processLine(@NotNull String line) throws IOException
                 {
                     String[] s = line.split(",");
                     csvData.put(s[0], s[1]);
@@ -183,7 +184,7 @@ public class ReobfExceptor
             final Map<String, String> tmp = Maps.newHashMap();
 
             @Override
-            public boolean processLine(String line) throws IOException
+            public boolean processLine(@NotNull String line) throws IOException
             {
                 if (line.contains(".") ||
                    !line.contains("=") ||
@@ -293,33 +294,32 @@ public class ReobfExceptor
         public boolean processLine(String line) throws IOException
         {
             String[] split = line.split(" ");
-            if (split[0].equals("CL:"))
-            {
-                split[2] = rename(split[2]);
-            }
-            else if (split[0].equals("FD:"))
-            {
-                String[] s = rsplit(split[2], "/");
-                split[2] = rename(s[0]) + "/" + s[1];
-            }
-            else if (split[0].equals("MD:"))
-            {
-                String[] s = rsplit(split[3], "/");
-                split[3] = rename(s[0]) + "/" + s[1];
-
-                if (access.containsKey(split[3]))
-                {
-                    split[3] = access.get(split[3]);
+            switch (split[0]) {
+                case "CL:":
+                    split[2] = rename(split[2]);
+                    break;
+                case "FD:": {
+                    String[] s = rsplit(split[2], "/");
+                    split[2] = rename(s[0]) + "/" + s[1];
+                    break;
                 }
+                case "MD:": {
+                    String[] s = rsplit(split[3], "/");
+                    split[3] = rename(s[0]) + "/" + s[1];
 
-                Matcher m = reg.matcher(split[4]);
-                StringBuffer b = new StringBuffer();
-                while(m.find())
-                {
-                    m.appendReplacement(b, "L" + rename(m.group(1)).replace("$",  "\\$") + ";");
+                    if (access.containsKey(split[3])) {
+                        split[3] = access.get(split[3]);
+                    }
+
+                    Matcher m = reg.matcher(split[4]);
+                    StringBuffer b = new StringBuffer();
+                    while (m.find()) {
+                        m.appendReplacement(b, "L" + rename(m.group(1)).replace("$", "\\$") + ";");
+                    }
+                    m.appendTail(b);
+                    split[4] = b.toString();
+                    break;
                 }
-                m.appendTail(b);
-                split[4] = b.toString();
             }
             out.append(StringUtil.joinString(Arrays.asList(split), " ")).append('\n');
             return true;
@@ -411,7 +411,7 @@ public class ReobfExceptor
         public String name;
         public String desc;
         public int access;
-        public List<Insn> insns = new ArrayList<Insn>();
+        public List<Insn> insns = new ArrayList<>();
         private String cache = null;
         
         public AccessInfo(String owner, String name, String desc)
@@ -433,7 +433,7 @@ public class ReobfExceptor
         {
             if (cache == null)
             {
-                if (insns.size() < 1)
+                if (insns.isEmpty())
                     throw new RuntimeException("Empty Intruction!!!  IMPOSSIBURU");
                 
                 cache = "[" + Joiner.on(", ").join(insns) + "]";

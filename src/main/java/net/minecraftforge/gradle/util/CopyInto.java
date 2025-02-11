@@ -33,7 +33,7 @@ public class CopyInto extends Closure<Object>
 {
     private final String dir;
     private final String[] filters;
-    private final HashMap<String, Object> expands = new HashMap<String, Object>();
+    private final HashMap<String, Object> expands = new HashMap<>();
     
     public CopyInto(Class<?> owner, String dir)
     {

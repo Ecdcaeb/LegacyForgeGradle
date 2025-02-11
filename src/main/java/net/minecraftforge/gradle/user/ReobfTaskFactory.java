@@ -22,9 +22,7 @@ package net.minecraftforge.gradle.user;
 import java.io.File;
 import java.util.List;
 
-import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectFactory;
-import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.tasks.bundling.Jar;
@@ -35,6 +33,7 @@ import com.google.common.collect.Lists;
 import groovy.lang.Closure;
 import net.minecraftforge.gradle.common.Constants;
 import net.minecraftforge.gradle.util.GradleConfigurationException;
+import org.jetbrains.annotations.NotNull;
 
 public class ReobfTaskFactory implements NamedDomainObjectFactory<IReobfuscator>
 {
@@ -45,6 +44,7 @@ public class ReobfTaskFactory implements NamedDomainObjectFactory<IReobfuscator>
         this.plugin = plugin;
     }
 
+    @NotNull
     @SuppressWarnings("serial")
     @Override
     public IReobfuscator create(final String jarName)
@@ -75,15 +75,11 @@ public class ReobfTaskFactory implements NamedDomainObjectFactory<IReobfuscator>
         plugin.setupReobf(wrapper);
 
         // do after-Evaluate resolution, for the same of good error reporting
-        plugin.project.afterEvaluate(new Action<Project>() {
-            @Override
-            public void execute(Project arg0)
+        plugin.project.afterEvaluate(arg0 -> {
+            Task jar = plugin.project.getTasks().getByName(jarName);
+            if (!(jar instanceof Jar))
             {
-                Task jar = plugin.project.getTasks().getByName(jarName);
-                if (!(jar instanceof Jar))
-                {
-                    throw new GradleConfigurationException(jarName + "  is not a jar task. Can only reobf jars!");
-                }
+                throw new GradleConfigurationException(jarName + "  is not a jar task. Can only reobf jars!");
             }
         });
 

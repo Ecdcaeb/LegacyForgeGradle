@@ -32,8 +32,6 @@ import static net.minecraftforge.gradle.user.patcherUser.PatcherUserConstants.*;
 
 import java.io.File;
 
-import org.gradle.api.Action;
-import org.gradle.api.Project;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
 
@@ -189,13 +187,7 @@ public abstract class PatcherUserBasePlugin<T extends UserBaseExtension> extends
     protected void afterDecomp(final boolean isDecomp, final boolean useLocalCache, final String mcConfig)
     {
         // add MC repo to all projects
-        project.allprojects(new Action<Project>() {
-            @Override
-            public void execute(Project proj)
-            {
-                addFlatRepo(proj, "TweakerMcRepo", delayedFile(useLocalCache ? DIR_LOCAL_CACHE : DIR_API_JAR_BASE).call());
-            }
-        });
+        project.allprojects(proj -> addFlatRepo(proj, "TweakerMcRepo", delayedFile(useLocalCache ? DIR_LOCAL_CACHE : DIR_API_JAR_BASE).call()));
 
         // add the Mc dep
         T exten = getExtension();

@@ -50,10 +50,10 @@ public class TaskSourceCopy extends DefaultTask
     SourceDirectorySet      source;
 
     @Input
-    HashMap<String, Object> replacements = new HashMap<String, Object>();
+    HashMap<String, Object> replacements = new HashMap<>();
 
     @Input
-    ArrayList<String>       includes     = new ArrayList<String>();
+    ArrayList<String>       includes     = new ArrayList<>();
 
     @OutputDirectory
     Object             output;
@@ -76,7 +76,7 @@ public class TaskSourceCopy extends DefaultTask
         out = out.getCanonicalFile();
 
         // resolve replacements
-        HashMap<String, String> repl = new HashMap<String, String>(replacements.size());
+        HashMap<String, String> repl = new HashMap<>(replacements.size());
         for (Entry<String, Object> e : replacements.entrySet())
         {
             if (e.getKey() == null || e.getValue() == null)
@@ -89,13 +89,13 @@ public class TaskSourceCopy extends DefaultTask
             repl.put(Pattern.quote(e.getKey()), val.toString());
         }
 
-        getLogger().debug("REPLACE >> " + repl);
+        getLogger().debug("REPLACE >> {}", repl);
 
         // start traversing tree
         for (DirectoryTree dirTree : source.getSrcDirTrees())
         {
             File dir = dirTree.getDir();
-            getLogger().debug("PARSING DIR >> " + dir);
+            getLogger().debug("PARSING DIR >> {}", dir);
 
             // handle nonexistant srcDirs
             if (!dir.exists() || !dir.isDirectory())
@@ -115,13 +115,13 @@ public class TaskSourceCopy extends DefaultTask
 
                 if (isIncluded(file))
                 {
-                    getLogger().debug("PARSING FILE IN >> " + file);
+                    getLogger().debug("PARSING FILE IN >> {}", file);
                     String text = Files.asCharSource(file, Charsets.UTF_8).read();
 
                     for (Entry<String, String> entry : repl.entrySet())
                         text = text.replaceAll(entry.getKey(), entry.getValue());
 
-                    getLogger().debug("PARSING FILE OUT >> " + dest);
+                    getLogger().debug("PARSING FILE OUT >> {}", dest);
                     Files.asCharSink(dest, Charsets.UTF_8).write(text);
                 }
                 else
@@ -160,15 +160,11 @@ public class TaskSourceCopy extends DefaultTask
             File[] files = dir.listFiles();
             if (null != files)
             {
-                for (int i = 0; i < files.length; i++)
-                {
-                    if (files[i].isDirectory())
-                    {
-                        deleteDir(files[i]);
-                    }
-                    else
-                    {
-                        files[i].delete();
+                for (File file : files) {
+                    if (file.isDirectory()) {
+                        deleteDir(file);
+                    } else {
+                        file.delete();
                     }
                 }
             }

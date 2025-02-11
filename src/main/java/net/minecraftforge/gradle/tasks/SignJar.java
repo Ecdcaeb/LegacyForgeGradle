@@ -22,6 +22,7 @@ package net.minecraftforge.gradle.tasks;
 import static net.minecraftforge.gradle.common.Constants.resolveString;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -48,6 +49,7 @@ import com.google.common.io.ByteStreams;
 
 import groovy.lang.Closure;
 import groovy.util.MapEntry;
+import org.jetbrains.annotations.NotNull;
 
 public class SignJar extends DefaultTask implements PatternFilterable
 {
@@ -96,14 +98,14 @@ public class SignJar extends DefaultTask implements PatternFilterable
         final Spec<FileTreeElement> spec = patternSet.getAsSpec();
 
         toSign.getParentFile().mkdirs();
-        try (JarOutputStream outs = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(toSign))))
+        try (JarOutputStream outs = new JarOutputStream(new BufferedOutputStream(Files.newOutputStream(toSign.toPath()))))
         {
 
             getProject().zipTree(inputJar).visit(new FileVisitor()
             {
 
                 @Override
-                public void visitDir(FileVisitDetails details)
+                public void visitDir(@NotNull FileVisitDetails details)
                 {
                     try
                     {
@@ -119,7 +121,7 @@ public class SignJar extends DefaultTask implements PatternFilterable
 
                 @Override
                 @SuppressWarnings("unchecked")
-                public void visitFile(FileVisitDetails details)
+                public void visitFile(@NotNull FileVisitDetails details)
                 {
                     try
                     {
@@ -153,7 +155,7 @@ public class SignJar extends DefaultTask implements PatternFilterable
     {
         outputJar.getParentFile().mkdirs();
 
-        try (JarOutputStream outs = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(outputJar)));
+        try (JarOutputStream outs = new JarOutputStream(new BufferedOutputStream(Files.newOutputStream(outputJar.toPath())));
              ZipFile base = new ZipFile(signedJar))
         {
             for (ZipEntry e : Collections.list(base.entries()))
@@ -183,76 +185,86 @@ public class SignJar extends DefaultTask implements PatternFilterable
         }
     }
 
+    @NotNull
     @Override
-    public PatternFilterable exclude(String... arg0)
+    public PatternFilterable exclude(@NotNull String... arg0)
     {
         return patternSet.exclude(arg0);
     }
 
+    @NotNull
     @Override
-    public PatternFilterable exclude(Iterable<String> arg0)
+    public PatternFilterable exclude(@NotNull Iterable<String> arg0)
     {
         return patternSet.exclude(arg0);
     }
 
+    @NotNull
     @Override
-    public PatternFilterable exclude(Spec<FileTreeElement> arg0)
+    public PatternFilterable exclude(@NotNull Spec<FileTreeElement> arg0)
     {
         return patternSet.exclude(arg0);
     }
 
+    @NotNull
     @Override
-    @SuppressWarnings("rawtypes")
-    public PatternFilterable exclude(Closure arg0)
+    public PatternFilterable exclude(@NotNull Closure arg0)
     {
         return patternSet.exclude(arg0);
     }
 
+    @NotNull
     @Override
     public Set<String> getExcludes()
     {
         return patternSet.getExcludes();
     }
 
+    @NotNull
     @Override
     public Set<String> getIncludes()
     {
         return patternSet.getIncludes();
     }
 
+    @NotNull
     @Override
-    public PatternFilterable include(String... arg0)
+    public PatternFilterable include(@NotNull String... arg0)
     {
         return patternSet.include(arg0);
     }
 
+    @NotNull
     @Override
-    public PatternFilterable include(Iterable<String> arg0)
+    public PatternFilterable include(@NotNull Iterable<String> arg0)
     {
         return patternSet.include(arg0);
     }
 
+    @NotNull
     @Override
-    public PatternFilterable include(Spec<FileTreeElement> arg0)
+    public PatternFilterable include(@NotNull Spec<FileTreeElement> arg0)
     {
         return patternSet.include(arg0);
     }
 
+    @NotNull
     @Override
-    @SuppressWarnings("rawtypes")
-    public PatternFilterable include(Closure arg0)
+    public PatternFilterable include(@NotNull Closure arg0)
     {
         return patternSet.include(arg0);
     }
 
+    @NotNull
     @Override
-    public PatternFilterable setExcludes(Iterable<String> arg0)
+    public PatternFilterable setExcludes(@NotNull Iterable<String> arg0)
     {
         return patternSet.setExcludes(arg0);
     }
 
+    @NotNull
     @Override
-    public PatternFilterable setIncludes(Iterable<String> arg0)
+    public PatternFilterable setIncludes(@NotNull Iterable<String> arg0)
     {
         return patternSet.setIncludes(arg0);
     }

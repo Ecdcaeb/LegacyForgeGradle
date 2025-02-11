@@ -62,6 +62,7 @@ import net.minecraftforge.gradle.util.caching.CachedTask;
 import net.minecraftforge.gradle.util.json.JsonFactory;
 import net.minecraftforge.gradle.util.json.MCInjectorStruct;
 import net.minecraftforge.gradle.util.json.MCInjectorStruct.InnerClass;
+import org.jetbrains.annotations.NotNull;
 
 public class DeobfuscateJar extends CachedTask
 {
@@ -105,7 +106,7 @@ public class DeobfuscateJar extends CachedTask
         File out = getOutJar();
 
         // make the ATs list.. its a Set to avoid duplication.
-        Set<File> ats = new HashSet<File>();
+        Set<File> ats = new HashSet<>();
         for (Object obj : this.ats)
         {
             ats.add(getProject().file(obj).getCanonicalFile());
@@ -137,7 +138,7 @@ public class DeobfuscateJar extends CachedTask
         //Make SS shutup about access maps
         for (File at : ats)
         {
-            getLogger().info("" + at);
+            getLogger().info("{}", at);
             accessMap.loadAccessTransformer(at);
         }
         //        System.setOut(tmp);
@@ -161,7 +162,7 @@ public class DeobfuscateJar extends CachedTask
             remapper.remapJar(input, outJar);
 
             // throw error for broken AT lines
-            if (accessMap.brokenLines.size() > 0 && failOnAtError)
+            if (!accessMap.brokenLines.isEmpty() && failOnAtError)
             {
                 getLogger().error("{} Broken Access Transformer lines:", accessMap.brokenLines.size());
                 for (String line : accessMap.brokenLines.values())
@@ -220,12 +221,12 @@ public class DeobfuscateJar extends CachedTask
             final Map<String, MCInjectorStruct> struct = JsonFactory.loadMCIJson(getJson);
             for (File at : ats)
             {
-                getLogger().info("loading AT: " + at.getCanonicalPath());
+                getLogger().info("loading AT: {}", at.getCanonicalPath());
 
                 Files.readLines(at, Charset.defaultCharset(), new LineProcessor<Object>()
                 {
                     @Override
-                    public boolean processLine(String line) throws IOException
+                    public boolean processLine(@NotNull String line) throws IOException
                     {
                         if (line.indexOf('#') != -1)
                             line = line.substring(0, line.indexOf('#'));
@@ -272,11 +273,11 @@ public class DeobfuscateJar extends CachedTask
             Files.write(JsonFactory.GSON.toJson(struct).getBytes(), jsonTmp);
         }
 
-        getLogger().debug("INPUT: " + inJar);
-        getLogger().debug("OUTPUT: " + outJar);
-        getLogger().debug("CONFIG: " + config);
-        getLogger().debug("JSON: " + json);
-        getLogger().debug("LOG: " + log);
+        getLogger().debug("INPUT: {}", inJar);
+        getLogger().debug("OUTPUT: {}", outJar);
+        getLogger().debug("CONFIG: {}", config);
+        getLogger().debug("JSON: {}", json);
+        getLogger().debug("LOG: {}", log);
         getLogger().debug("PARAMS: true");
 
         MCInjectorImpl.process(inJar.getCanonicalPath(),
@@ -509,7 +510,7 @@ public class DeobfuscateJar extends CachedTask
                 Files.readLines(f, Charsets.UTF_8, new LineProcessor<String>()
                 {
                     @Override
-                    public boolean processLine(String line) throws IOException
+                    public boolean processLine(@NotNull String line) throws IOException
                     {
                         String[] pts = line.split(",");
                         if (!"searge".equals(pts[0]))

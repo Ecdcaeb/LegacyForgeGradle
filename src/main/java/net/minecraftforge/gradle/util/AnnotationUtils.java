@@ -221,7 +221,7 @@ public class AnnotationUtils
         }
 
         // Possible Types: boolean, byte, char, short, int, long, float, double, String, Class, Enum, and annotation.
-        // It's also possible to be an array of any of those types.
+        // It's also possible to be an array of those types.
         // Writing to JSON is lossy... so.. we need to write a custom parser?
         public void addProperty(String name, ValueHolder value)
         {
