@@ -29,8 +29,11 @@ import org.gradle.api.Project;
 
 import java.net.URL;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public abstract class BaseExtension
 {
@@ -364,5 +367,13 @@ public abstract class BaseExtension
         Arrays.sort(array);
         int foundIndex = Arrays.binarySearch(array, key);
         return foundIndex >= 0 && array[foundIndex] == key;
+    }
+
+    /**
+     * @param originalDomain the vanilla url domain, for example, resources.download.minecraft.net, launchermeta.mojang.com
+     * @param mirrorDomain the mirror url root
+     */
+    public void mirrorURL(String originalDomain, String mirrorDomain){
+        Constants.redirectURL(originalDomain, mirrorDomain);
     }
 }

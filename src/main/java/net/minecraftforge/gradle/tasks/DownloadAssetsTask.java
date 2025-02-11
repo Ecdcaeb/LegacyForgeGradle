@@ -183,7 +183,7 @@ public class DownloadAssetsTask extends DefaultTask
                         if (checkFileCorrupt(localMc, asset.size, asset.hash))
                         {
                             // download
-                            ReadableByteChannel channel = Channels.newChannel(new URL(Constants.URL_ASSETS + "/" + asset.path).openStream());
+                            ReadableByteChannel channel = Channels.newChannel(new URL(Constants.redirectURL(Constants.URL_ASSETS) + "/" + asset.path).openStream());
                             try (FileOutputStream fout = new FileOutputStream(file);
                                  FileChannel fileChannel = fout.getChannel())
                             {

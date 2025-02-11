@@ -128,7 +128,7 @@ public class PatcherPlugin extends BasePlugin<PatcherExtension>
         TaskGenSubprojects createProjects = makeTask(TASK_GEN_PROJECTS, TaskGenSubprojects.class);
         {
             createProjects.setWorkspaceDir(getExtension().getDelayedWorkspaceDir());
-            createProjects.addRepo("minecraft", Constants.URL_LIBRARY);
+            createProjects.addRepo("minecraft", Constants.redirectURL(Constants.URL_LIBRARY));
             createProjects.putProject("Clean", null, null, null, null);
             createProjects.setJavaLevel("1.8");
         }

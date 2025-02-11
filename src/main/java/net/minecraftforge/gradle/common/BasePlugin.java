@@ -31,6 +31,7 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import net.minecraftforge.gradle.util.json.version.ManifestVersion;
 import org.gradle.api.DefaultTask;
@@ -168,9 +169,9 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
 
         // repos
         project.allprojects(proj -> {
-            addMavenRepo(proj, "forge", URL_FORGE_MAVEN);
+            addMavenRepo(proj, "forge", Constants.redirectURL(URL_FORGE_MAVEN));
             proj.getRepositories().mavenCentral();
-            addMavenRepo(proj, "minecraft", URL_LIBRARY);
+            addMavenRepo(proj, "minecraft", Constants.redirectURL(URL_LIBRARY));
         });
 
         // do Mcp Snapshots Stuff
@@ -214,13 +215,13 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
         // MCP json
         File jsonCache = cacheFile("McpMappings.json");
         File etagFile = new File(jsonCache.getAbsolutePath() + ".etag");
-        String mcpJson = getWithEtag(URLS_MCP_JSON, jsonCache, etagFile);
+        String mcpJson = getWithEtag(URLS_MCP_JSON.stream().map(Constants::redirectURL).collect(Collectors.toList()), jsonCache, etagFile);
         getExtension().mcpJson = JsonFactory.GSON.fromJson(mcpJson, new TypeToken<Map<String, Map<String, int[]>>>() {}.getType());
 
         // MC manifest json
         jsonCache = cacheFile("McManifest.json");
         etagFile = new File(jsonCache.getAbsolutePath() + ".etag");
-        mcManifest = JsonFactory.GSON.fromJson(getWithEtag(URL_MC_MANIFEST, jsonCache, etagFile), new TypeToken<Map<String, ManifestVersion>>() {}.getType());
+        mcManifest = JsonFactory.GSON.fromJson(getWithEtag(Constants.redirectURL(URL_MC_MANIFEST), jsonCache, etagFile), new TypeToken<Map<String, ManifestVersion>>() {}.getType());
     }
 
     protected void afterEvaluate()
@@ -375,7 +376,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
                 @Override
                 public String call()
                 {
-                    return mcManifest.get(getExtension().getVersion()).url;
+                    return Constants.redirectURL(mcManifest.get(getExtension().getVersion()).url);
                 }
             });
             getVersionJson.setFile(delayedFile(JSON_VERSION));
@@ -437,7 +438,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
                 @Override
                 public String call()
                 {
-                    return mcVersionJson.assetIndex.url;
+                    return Constants.redirectURL(mcVersionJson.assetIndex.url);
                 }
             });
             getAssetsIndex.setFile(delayedFile(JSON_ASSET_INDEX));
@@ -459,7 +460,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
                 @Override
                 public String call()
                 {
-                    return mcVersionJson.getClientUrl();
+                    return Constants.redirectURL(mcVersionJson.getClientUrl());
                 }
             });
 
@@ -473,7 +474,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
                 @Override
                 public String call()
                 {
-                    return mcVersionJson.getServerUrl();
+                    return Constants.redirectURL(mcVersionJson.getServerUrl());
                 }
             });
 

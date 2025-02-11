@@ -33,14 +33,11 @@ import java.net.URLClassLoader;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.Callable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -116,7 +113,7 @@ public class Constants
 
     // urls
     public static final String URL_MC_MANIFEST     = "https://launchermeta.mojang.com/mc/game/version_manifest.json";
-    public static final String URL_ASSETS          = "http://resources.download.minecraft.net";
+    public static final String URL_ASSETS          = "https://resources.download.minecraft.net";
     public static final String URL_LIBRARY         = "https://libraries.minecraft.net/"; // Mojang's Cloudflare front end
     //public static final String URL_LIBRARY         = "https://minecraft-libraries.s3.amazonaws.com/"; // Mojang's AWS server, as Cloudflare is having issues, TODO: Switch back to above when their servers are fixed.
     public static final String URL_FORGE_MAVEN     = "https://maven.minecraftforge.net";
@@ -203,6 +200,8 @@ public class Constants
     public static final String TASK_EXTRACT_MAPPINGS = "extractMcpMappings";
     public static final String TASK_GENERATE_SRGS    = "genSrgs";
     public static final String TASK_CLEAN_CACHE      = "cleanCache";
+
+    private static final HashMap<String, String> url_redirect     = new HashMap<>();
 
     // util
     public static final String NEWLINE = System.lineSeparator();
@@ -554,5 +553,26 @@ public class Constants
 
         else
             return obj.toString();
+    }
+
+    public static String redirectURL(String originalDomain, String mirror) {
+        return redirectURL(url_redirect, originalDomain);
+    }
+
+    public static String redirectURL(String originalUrl) {
+        return redirectURL(url_redirect, originalUrl);
+    }
+
+    public static String redirectURL(Map<String, String> rules, String originalUrl) {
+        Pattern pattern = Pattern.compile("(?<=//)[^/]+");
+        Matcher matcher = pattern.matcher(originalUrl);
+        if (matcher.find()) {
+            String domain = matcher.group();
+            if (rules.containsKey(domain)) {
+                String newDomain = rules.get(domain);
+                return originalUrl.replaceFirst(Pattern.quote(domain), newDomain);
+            }
+        }
+        return originalUrl;
     }
 }
