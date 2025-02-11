@@ -28,7 +28,7 @@ public class ReplacementProvider implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    private Map<String, String> replaceMap = Maps.newHashMap();
+    private final Map<String, String> replaceMap = Maps.newHashMap();
 
     public void putReplacement(String key, String value)
     {

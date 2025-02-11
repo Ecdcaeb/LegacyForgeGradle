@@ -33,7 +33,7 @@ public class McVersionTransformer implements ReobfTransformer
 {
     private static final long serialVersionUID = 1L;
 
-    private Object            mcVersion;
+    private final Object            mcVersion;
 
     protected McVersionTransformer(Object mcVersion)
     {

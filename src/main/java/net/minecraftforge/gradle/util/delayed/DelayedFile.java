@@ -31,7 +31,7 @@ public class DelayedFile extends DelayedBase<File>
     
     public DelayedFile(Class<?> owner, File file)
     {
-        super(owner, (TokenReplacer)null);
+        super(owner, null);
         hardcoded = file;
         project = null;
     }

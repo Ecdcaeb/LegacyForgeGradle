@@ -50,7 +50,7 @@ public class ObtainFernFlowerTask extends CachedTask
     private DelayedFile ffJar;
 
     @TaskAction
-    public void doTask() throws MalformedURLException, IOException
+    public void doTask() throws IOException
     {
         if (getProject().getGradle().getStartParameter().isOffline())
         {

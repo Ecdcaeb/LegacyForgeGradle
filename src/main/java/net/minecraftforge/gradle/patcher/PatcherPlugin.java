@@ -834,7 +834,7 @@ public class PatcherPlugin extends BasePlugin<PatcherExtension>
                 {
                     genPatches.addChangedSource(subWorkspace(patcher.getCapName() + DIR_EXTRACTED_SRC));
 
-                    if ("clean".equals(patcher.getGenPatchesFrom().toLowerCase()))
+                    if ("clean".equalsIgnoreCase(patcher.getGenPatchesFrom()))
                     {
                         genPatches.addOriginalSource(delayedFile(JAR_REMAPPED)); // SRG named vanilla..
                     }
@@ -850,7 +850,7 @@ public class PatcherPlugin extends BasePlugin<PatcherExtension>
                     genPatches.addChangedSource(delayedFile(projectString(JAR_PROJECT_RETROMAPPED, patcher)));
                     genPatches.dependsOn(projectString(TASK_PROJECT_RETROMAP, patcher));
 
-                    if ("clean".equals(patcher.getGenPatchesFrom().toLowerCase()))
+                    if ("clean".equalsIgnoreCase(patcher.getGenPatchesFrom()))
                     {
                         genPatches.addOriginalSource(delayedFile(JAR_DECOMP_POST)); // SRG named vanilla..
                     }

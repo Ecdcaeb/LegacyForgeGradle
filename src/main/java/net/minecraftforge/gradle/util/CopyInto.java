@@ -31,9 +31,9 @@ import com.google.common.base.Strings;
 @SuppressWarnings("serial")
 public class CopyInto extends Closure<Object>
 {
-    private String dir;
-    private String[] filters;
-    private HashMap<String, Object> expands = new HashMap<String, Object>();
+    private final String dir;
+    private final String[] filters;
+    private final HashMap<String, Object> expands = new HashMap<String, Object>();
     
     public CopyInto(Class<?> owner, String dir)
     {
@@ -83,4 +83,4 @@ public class CopyInto extends Closure<Object>
         
         return null;
     }
-};
+}

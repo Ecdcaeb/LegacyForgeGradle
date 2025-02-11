@@ -87,7 +87,7 @@ public class EtagDownloadTask extends DefaultTask
             switch (con.getResponseCode())
                 {
                     case 404: // file not found.... duh...
-                        error("" + url + "  404'ed!");
+                        error(url + "  404'ed!");
                         break;
                     case 304: // content is the same.
                         this.setDidWork(false);

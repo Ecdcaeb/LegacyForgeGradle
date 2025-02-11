@@ -19,10 +19,7 @@
  */
 package net.minecraftforge.gradle.util.mcp;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import net.minecraftforge.gradle.common.Constants;
 
@@ -93,13 +90,13 @@ public final class JavadocAdder
         // return text if len is zero or less
         if (len <= 0)
         {
-            return new ArrayList<String>(Arrays.asList(text));
+            return new ArrayList<String>(Collections.singletonList(text));
         }
 
         // return text if less than length
         if (text.length() <= len)
         {
-            return new ArrayList<String>(Arrays.asList(text));
+            return new ArrayList<String>(Collections.singletonList(text));
         }
 
         List<String> lines = new LinkedList<String>();

@@ -70,7 +70,7 @@ public class CreateStartTask extends CachedTask
     @OutputDirectory
     private Object              startOut;
 
-    private Set<String>         classpath    = Sets.newHashSet();
+    private final Set<String>         classpath    = Sets.newHashSet();
     private boolean             compile;
 
     private static final String EXTRA_LINES  = "//@@EXTRALINES@@";

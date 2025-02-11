@@ -514,7 +514,7 @@ public class PatcherProject implements Serializable
         if (field == null && rootDir != null)
             return new File(getRootDir(), defaultPath);
         else
-            return ((File) field);
+            return field;
     }
 
     public boolean isGenMcpPatches()

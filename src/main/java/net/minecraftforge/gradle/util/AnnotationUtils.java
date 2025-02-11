@@ -105,11 +105,12 @@ public class AnnotationUtils
         }
     }
 
-    public enum TargetType { CLASS, FIELD, METHOD, SUBTYPE };
+    public enum TargetType { CLASS, FIELD, METHOD, SUBTYPE }
 
     public static class ValueHolder
     {
-        public enum ValueType { BOOL, BYTE, CHAR, SHORT, INT, LONG, FLOAT, DOUBLE, STRING, CLASS, ENUM, ANNOTATION, NULL};
+        public enum ValueType { BOOL, BYTE, CHAR, SHORT, INT, LONG, FLOAT, DOUBLE, STRING, CLASS, ENUM, ANNOTATION, NULL}
+
         private static final Map<Class<?>, ValueType> byClass = ImmutableMap.<Class<?>, ValueType>builder()
             .put(Boolean.class,   ValueType.BOOL  )
             .put(boolean[].class, ValueType.BOOL  )
@@ -296,13 +297,9 @@ public class AnnotationUtils
         {
             //TODO: Actually load the annotation and filter anything with a special annotation?
             //For now we just filter 'java.*' annotations. And a couple of Forge ones.
-            if (
-                 anno.name.startsWith("Ljava/lang/") ||
-                 anno.name.startsWith("Ljavax/annotation/") ||
-                 anno.name.contains("/fml/relauncher/SideOnly;")
-               )
-                return true;
-            return false;
+            return anno.name.startsWith("Ljava/lang/") ||
+                    anno.name.startsWith("Ljavax/annotation/") ||
+                    anno.name.contains("/fml/relauncher/SideOnly;");
         }
     }
 }

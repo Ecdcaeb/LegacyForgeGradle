@@ -52,7 +52,7 @@ import groovy.util.MapEntry;
 public class SignJar extends DefaultTask implements PatternFilterable
 {
     //@formatter:off
-    @Input      private PatternSet patternSet = new PatternSet();
+    @Input      private final PatternSet patternSet = new PatternSet();
     @Input      private Object     alias;
     @Input      private Object     storePass;
     @Input      private Object     keyPass;

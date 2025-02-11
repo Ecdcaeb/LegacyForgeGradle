@@ -80,9 +80,9 @@ public class Library
 
     private class Artifact
     {
-        private String domain;
-        private String name;
-        private String version;
+        private final String domain;
+        private final String name;
+        private final String version;
         private String classifier;
         private String ext = "jar";
 

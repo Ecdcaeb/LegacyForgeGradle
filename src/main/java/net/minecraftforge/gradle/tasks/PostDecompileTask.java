@@ -267,8 +267,10 @@ public class PostDecompileTask extends AbstractEditJarTask
             success = true;
             for (PatchReport rep : errors)
             {
-                if (!rep.getStatus().isSuccess())
+                if (!rep.getStatus().isSuccess()) {
                     success = false;
+                    break;
+                }
             }
             if (success) {
                 logger.debug("accepted MCP patch " + f.getName());

@@ -161,8 +161,8 @@ public class CrowdinDownload extends DefaultTask
 
                     String data = CharStreams.readLines(new InputStreamReader(zStream), new LineProcessor<String>()
                     {
-                        StringBuilder out = new StringBuilder();
-                        Splitter SPLITTER = Splitter.on('=').limit(2);
+                        final StringBuilder out = new StringBuilder();
+                        final Splitter SPLITTER = Splitter.on('=').limit(2);
 
                         @Override
                         public boolean processLine(String line) throws IOException

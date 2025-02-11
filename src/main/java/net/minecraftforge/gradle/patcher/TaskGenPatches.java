@@ -68,7 +68,7 @@ class TaskGenPatches extends DefaultTask
     public TaskGenPatches() { super(); }
     //@formatter:on
 
-    private Set<File> created = new HashSet<File>();
+    private final Set<File> created = new HashSet<File>();
 
     @TaskAction
     public void doTask() throws IOException, PatchException

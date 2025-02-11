@@ -32,7 +32,7 @@ public class DelayedFileTree extends DelayedBase<FileTree>
     
     public DelayedFileTree(Class<?> owner, File file)
     {
-        super(owner, (TokenReplacer)null);
+        super(owner, null);
         hardcoded = file;
         project = null;
     }

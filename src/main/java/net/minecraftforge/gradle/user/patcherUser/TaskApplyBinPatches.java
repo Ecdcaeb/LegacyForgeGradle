@@ -70,8 +70,8 @@ public class TaskApplyBinPatches extends CachedTask
     @Cached
     Object                              outJar;
 
-    private HashMap<String, ClassPatch> patchlist = Maps.newHashMap();
-    private GDiffPatcher                patcher   = new GDiffPatcher();
+    private final HashMap<String, ClassPatch> patchlist = Maps.newHashMap();
+    private final GDiffPatcher                patcher   = new GDiffPatcher();
 
     @TaskAction
     public void doTask() throws IOException

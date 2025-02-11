@@ -180,7 +180,7 @@ public class ReobfExceptor
     {
         Map<String, String> excMap = Files.asCharSource(excConfig, Charset.defaultCharset()).readLines(new LineProcessor<Map<String, String>>()
         {
-            Map<String, String> tmp = Maps.newHashMap();
+            final Map<String, String> tmp = Maps.newHashMap();
 
             @Override
             public boolean processLine(String line) throws IOException
@@ -350,7 +350,7 @@ public class ReobfExceptor
         public void visit(int version, int access, String name, String signature, String superName, String[] ints)
         {
             //System.out.println("Class: " + name);
-            this.className = name;;
+            this.className = name;
             if ((access & ACC_INTERFACE) == ACC_INTERFACE)
             {
                 interfaces.add(className);
@@ -367,7 +367,7 @@ public class ReobfExceptor
                 {
                     throw new RuntimeException("Modder stupidity detected, DO NOT USE __OBFID, Copy pasting code you don't understand is bad: " + className);
                 }
-                map.put(String.valueOf(value) + "_", className);
+                map.put(value + "_", className);
                 //System.out.println("  Marker:    " + String.valueOf(value));
             }
             return null;

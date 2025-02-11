@@ -71,12 +71,12 @@ class TaskGenBinPatches extends DefaultTask
     @OutputFile private Object runBinPatches;
     //@formatter:on
 
-    private List<Object>             patchSets    = Lists.newArrayList();
-    private HashMap<String, String>  obfMapping   = new HashMap<String, String>();
-    private HashMap<String, String>  srgMapping   = new HashMap<String, String>();
-    private Multimap<String, String> innerClasses = ArrayListMultimap.create();
-    private Set<String>              patchedFiles = new HashSet<String>();
-    private Delta                    delta        = new Delta();
+    private final List<Object>             patchSets    = Lists.newArrayList();
+    private final HashMap<String, String>  obfMapping   = new HashMap<String, String>();
+    private final HashMap<String, String>  srgMapping   = new HashMap<String, String>();
+    private final Multimap<String, String> innerClasses = ArrayListMultimap.create();
+    private final Set<String>              patchedFiles = new HashSet<String>();
+    private final Delta                    delta        = new Delta();
 
     //@formatter:off
     public TaskGenBinPatches() { super(); }
@@ -141,7 +141,7 @@ class TaskGenBinPatches extends DefaultTask
     {
         Files.asCharSource(getSrg(), Charset.defaultCharset()).readLines(new LineProcessor<String>() {
 
-            Splitter splitter = Splitter.on(CharMatcher.anyOf(": ")).omitEmptyStrings().trimResults();
+            final Splitter splitter = Splitter.on(CharMatcher.anyOf(": ")).omitEmptyStrings().trimResults();
 
             @Override
             public boolean processLine(String line) throws IOException

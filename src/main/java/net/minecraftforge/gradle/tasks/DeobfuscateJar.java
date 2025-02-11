@@ -28,12 +28,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.zip.ZipFile;
 
 import org.gradle.api.file.FileCollection;
@@ -98,7 +93,7 @@ public class DeobfuscateJar extends CachedTask
     private Object            outJar;
 
     @InputFiles
-    private ArrayList<Object> ats           = Lists.newArrayList();
+    private final ArrayList<Object> ats           = Lists.newArrayList();
 
     private Object            log;
 
@@ -458,10 +453,7 @@ public class DeobfuscateJar extends CachedTask
      */
     public void addAts(Object... objs)
     {
-        for (Object object : objs)
-        {
-            ats.add(object);
-        }
+        Collections.addAll(ats, objs);
     }
 
     /**

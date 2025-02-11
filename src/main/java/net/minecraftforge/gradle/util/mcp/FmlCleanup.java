@@ -146,9 +146,9 @@ public class FmlCleanup
     private static class MethodInfo
     {
         private MethodInfo parent = null;
-        private List<Object> lines = Lists.newArrayList();
-        private List<String> vars = Lists.newArrayList();
-        private List<MethodInfo> children = Lists.newArrayList();
+        private final List<Object> lines = Lists.newArrayList();
+        private final List<String> vars = Lists.newArrayList();
+        private final List<MethodInfo> children = Lists.newArrayList();
         private final String ENDING;
 
         private MethodInfo(MethodInfo parent, String indent)

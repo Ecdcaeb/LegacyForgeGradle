@@ -286,8 +286,7 @@ public class MergeJars extends CachedTask
         if (o.name == null && o2.name != null) return false;
         if (o.name != null && !o.name.equals(o2.name)) return false;
         if (o.outerName == null && o2.outerName != null) return false;
-        if (o.outerName != null && o.outerName.equals(o2.outerName)) return false;
-        return true;
+        return o.outerName == null || !o.outerName.equals(o2.outerName);
     }
     private static boolean contains(List<InnerClassNode> list, InnerClassNode node)
     {
@@ -522,7 +521,7 @@ public class MergeJars extends CachedTask
 
     private class MethodWrapper
     {
-        private MethodNode node;
+        private final MethodNode node;
         public boolean     client;
         public boolean     server;
 

@@ -114,7 +114,7 @@ public class JenkinsChangelog extends DefaultTask
         Files.write(out.toString().getBytes(), outFile);
     }
 
-    private String read(String url) throws MalformedURLException, IOException
+    private String read(String url) throws IOException
     {
         return read(new URL(getServerRoot() + "job/" + getJobName() + url));
     }

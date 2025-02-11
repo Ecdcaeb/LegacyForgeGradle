@@ -30,9 +30,9 @@ public enum ReobfMappingType
     NOTCH(Constants.SRG_MCP_TO_NOTCH),
     CUSTOM(null);
 
-    private String path;
+    private final String path;
 
-    private ReobfMappingType(String s)
+    ReobfMappingType(String s)
     {
         this.path = s;
     }

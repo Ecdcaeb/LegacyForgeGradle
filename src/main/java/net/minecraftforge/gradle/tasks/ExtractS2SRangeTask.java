@@ -45,7 +45,7 @@ import com.google.common.collect.Lists;
 public class ExtractS2SRangeTask extends DefaultTask
 {
     @InputFiles
-    private List<Object> libs = Lists.newArrayList();
+    private final List<Object> libs = Lists.newArrayList();
 
     private final List<Object> sources = Lists.newArrayList();
 

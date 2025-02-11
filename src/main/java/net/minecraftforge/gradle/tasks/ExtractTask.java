@@ -23,6 +23,7 @@ import groovy.lang.Closure;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -45,10 +46,10 @@ public class ExtractTask extends CachedTask implements PatternFilterable
 {
 
     @InputFiles
-    private LinkedHashSet<Object> sourcePaths      = new LinkedHashSet<Object>();
+    private final LinkedHashSet<Object> sourcePaths      = new LinkedHashSet<Object>();
 
     @Input
-    private PatternSet            patternSet       = new PatternSet();
+    private final PatternSet            patternSet       = new PatternSet();
 
     @Input
     private boolean               includeEmptyDirs = true;
@@ -94,10 +95,7 @@ public class ExtractTask extends CachedTask implements PatternFilterable
 
     public ExtractTask from(Object... paths)
     {
-        for (Object path : paths)
-        {
-            sourcePaths.add(path);
-        }
+        Collections.addAll(sourcePaths, paths);
         return this;
     }
 

@@ -65,7 +65,7 @@ import net.minecraftforge.gradle.util.json.version.OS;
 public class Constants
 {
     // OS
-    public static enum SystemArch
+    public enum SystemArch
     {
         BIT_32, BIT_64;
 

@@ -38,7 +38,7 @@ import com.google.gson.GsonBuilder;
 
 class TaskProcessJson extends DefaultTask
 {
-    private Map<String, Object> replacements = Maps.newHashMap();
+    private final Map<String, Object> replacements = Maps.newHashMap();
 
     @InputFile
     private Object              releaseJson;

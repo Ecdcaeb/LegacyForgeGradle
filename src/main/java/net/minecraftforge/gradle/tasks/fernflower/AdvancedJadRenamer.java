@@ -27,7 +27,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 class AdvancedJadRenamer extends JADNameProvider {
-    private StructMethod wrapper;
+    private final StructMethod wrapper;
     private static final Pattern p = Pattern.compile("func_(\\d+)_.*");
     public AdvancedJadRenamer(StructMethod wrapper)
     {

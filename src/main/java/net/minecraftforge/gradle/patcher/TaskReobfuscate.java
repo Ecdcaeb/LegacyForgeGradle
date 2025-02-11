@@ -65,7 +65,7 @@ class TaskReobfuscate extends DefaultTask
     private LinkedList<String> extraSrg = new LinkedList<String>();
     
     @InputFiles
-    private List<Object> libs = Lists.newArrayList();
+    private final List<Object> libs = Lists.newArrayList();
     
     //@formatter:off
     public TaskReobfuscate() { super(); }
@@ -106,7 +106,7 @@ class TaskReobfuscate extends DefaultTask
         obfuscate(inJar, getLibs(), srg);
     }
 
-    private void obfuscate(File inJar, FileCollection classpath, File srg) throws FileNotFoundException, IOException
+    private void obfuscate(File inJar, FileCollection classpath, File srg) throws IOException
     {
         // load mapping
         JarMapping mapping = new JarMapping();

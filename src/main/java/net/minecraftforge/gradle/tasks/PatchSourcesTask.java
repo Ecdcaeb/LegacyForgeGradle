@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -69,7 +70,7 @@ public class PatchSourcesTask extends AbstractEditJarTask
 
     // stateful pieces of this task
     private ContextProvider        context;
-    private ArrayList<PatchedFile> loadedPatches = Lists.newArrayList();
+    private final ArrayList<PatchedFile> loadedPatches = Lists.newArrayList();
 
     @Override
     public void doStuffBefore() throws IOException
@@ -118,7 +119,6 @@ public class PatchSourcesTask extends AbstractEditJarTask
                 }
 
             });
-            ;
         }
         else
         {
@@ -224,7 +224,7 @@ public class PatchSourcesTask extends AbstractEditJarTask
                             {
                                 rejectBuilder.append(String.format("++++ REJECTED PATCH %d\n", hunk.getHunkID()));
                                 rejectBuilder.append(Joiner.on('\n').join(hunk.hunk.lines));
-                                rejectBuilder.append(String.format("\n++++ END PATCH\n"));
+                                rejectBuilder.append("\n++++ END PATCH\n");
                             }
                         }
                         else if (hunk.getStatus() == PatchStatus.Fuzzed)
@@ -426,10 +426,7 @@ public class PatchSourcesTask extends AbstractEditJarTask
             {
                 String[] lines = fileMap.get(target).split("\r\n|\r|\n");
                 List<String> ret = new ArrayList<String>();
-                for (String line : lines)
-                {
-                    ret.add(line);
-                }
+                Collections.addAll(ret, lines);
                 return ret;
             }
 

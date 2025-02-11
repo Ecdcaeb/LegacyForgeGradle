@@ -88,7 +88,7 @@ public class ForgePlugin extends PatcherUserBasePlugin<ForgeExtension>
 
                 if (f.exists()) // if .location exists
                 {
-                    String projectDir = "URI//" + project.getProjectDir().toURI().toString();
+                    String projectDir = "URI//" + project.getProjectDir().toURI();
                     try
                     {
                         byte[] LOCATION_BEFORE = new byte[] { 0x40, (byte) 0xB1, (byte) 0x8B, (byte) 0x81, 0x23, (byte) 0xBC, 0x00, 0x14, 0x1A, 0x25, (byte) 0x96, (byte) 0xE7, (byte) 0xA3, (byte) 0x93, (byte) 0xBE, 0x1E };

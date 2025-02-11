@@ -46,7 +46,7 @@ import com.google.common.io.Files;
 public class TaskExtractDepAts extends DefaultTask
 {
     @Input
-    private List<String> configurations = Lists.newArrayList();
+    private final List<String> configurations = Lists.newArrayList();
     @OutputDirectory
     private Object               outputDir;
 

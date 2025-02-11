@@ -603,12 +603,12 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
 
     public static <T extends Task> T maybeMakeTask(Project proj, String name, Class<T> type)
     {
-        return (T) proj.getTasks().maybeCreate(name, type);
+        return proj.getTasks().maybeCreate(name, type);
     }
 
     public static <T extends Task> T makeTask(Project proj, String name, Class<T> type)
     {
-        return (T) proj.getTasks().create(name, type);
+        return proj.getTasks().create(name, type);
     }
 
     public static Project buildProject(File buildFile, Project parent)
@@ -790,7 +790,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
             }
             catch (IOException e)
             {
-                LOGGER.error("" + file + " could not be parsed");
+                LOGGER.error(file + " could not be parsed");
                 throw new RuntimeException(e);
             }
         }
@@ -848,7 +848,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
     }
 
     // DELAYED STUFF ONLY ------------------------------------------------------------------------
-    private LoadingCache<String, TokenReplacer> replacerCache = CacheBuilder.newBuilder()
+    private final LoadingCache<String, TokenReplacer> replacerCache = CacheBuilder.newBuilder()
             .weakValues()
             .build(
                     new CacheLoader<String, TokenReplacer>() {
@@ -857,7 +857,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
                             return new TokenReplacer(replacer, key);
                         }
                     });
-    private LoadingCache<String, DelayedString> stringCache = CacheBuilder.newBuilder()
+    private final LoadingCache<String, DelayedString> stringCache = CacheBuilder.newBuilder()
             .weakValues()
             .build(
                     new CacheLoader<String, DelayedString>() {
@@ -866,7 +866,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
                             return new DelayedString(CacheLoader.class, replacerCache.getUnchecked(key));
                         }
                     });
-    private LoadingCache<String, DelayedFile> fileCache = CacheBuilder.newBuilder()
+    private final LoadingCache<String, DelayedFile> fileCache = CacheBuilder.newBuilder()
             .weakValues()
             .build(
                     new CacheLoader<String, DelayedFile>() {

@@ -95,7 +95,7 @@ public class LiteLoaderJson
         
         public List<Map<String, String>> getLibraries()
         {
-            return this.libraries != null ? this.libraries : Collections.<Map<String, String>>emptyList();
+            return this.libraries != null ? this.libraries : Collections.emptyList();
         }
         
         public boolean hasMcp()

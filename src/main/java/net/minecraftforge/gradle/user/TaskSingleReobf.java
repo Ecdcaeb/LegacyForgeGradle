@@ -107,11 +107,11 @@ public class TaskSingleReobf extends DefaultTask
     private boolean                isDecomp          = false;
 
     private Object                 primarySrg;
-    private List<Object>           secondarySrgFiles = Lists.newArrayList();
-    private List<String>           extraSrgLines     = Lists.newArrayList();
+    private final List<Object>           secondarySrgFiles = Lists.newArrayList();
+    private final List<String>           extraSrgLines     = Lists.newArrayList();
 
-    private List<ReobfTransformer> preTransformers   = Lists.newArrayList();
-    private List<ReobfTransformer> postTransformers  = Lists.newArrayList();
+    private final List<ReobfTransformer> preTransformers   = Lists.newArrayList();
+    private final List<ReobfTransformer> postTransformers  = Lists.newArrayList();
 
     public TaskSingleReobf()
     {
@@ -330,13 +330,13 @@ public class TaskSingleReobf extends DefaultTask
             {
                 for (File nested : getProject().fileTree(f))
                 {
-                    if ("srg".equals(Files.getFileExtension(nested.getName()).toLowerCase()))
+                    if ("srg".equalsIgnoreCase(Files.getFileExtension(nested.getName())))
                     {
                         files.add(nested.getAbsoluteFile());
                     }
                 }
             }
-            else if ("srg".equals(Files.getFileExtension(f.getName()).toLowerCase()))
+            else if ("srg".equalsIgnoreCase(Files.getFileExtension(f.getName())))
             {
                 files.add(f.getAbsoluteFile());
             }
@@ -464,7 +464,7 @@ public class TaskSingleReobf extends DefaultTask
     public static class ClosureTransformer implements ReobfTransformer
     {
         private static final long serialVersionUID = 1L;
-        private Closure<byte[]>   closure;
+        private final Closure<byte[]>   closure;
 
         public ClosureTransformer(Closure<byte[]> closure)
         {

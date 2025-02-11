@@ -46,6 +46,7 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -208,7 +209,7 @@ public final class ContextualPatch
         {
             read = in.read(buffer);
         }
-        if (read != -1 && MAGIC.equals(new String(buffer, "utf8")))
+        if (read != -1 && MAGIC.equals(new String(buffer, StandardCharsets.UTF_8)))
         {  // NOI18N
             encoding = "utf8"; // NOI18N
         }
@@ -494,7 +495,7 @@ public final class ContextualPatch
                 boolean match = similar(target.get(idx), hunkLine.substring(1), hunkLine.charAt(0));
                 if (!match && fuzz != 0 && !isRemovalLine(hunkLine))
                 {
-                    match = (hunkIdx < fuzz || hunkIdx >= hunk.lines.size() - fuzz ? true : match);
+                    match = (hunkIdx < fuzz || hunkIdx >= hunk.lines.size() - fuzz || match);
                 }
                 if (!match)
                 {
@@ -838,8 +839,7 @@ public final class ContextualPatch
         int baseIdx = 0;
         int modifiedIdx = split + 1;
         List<String> unifiedLines = new ArrayList<String>(hunk.lines.size());
-        for (; baseIdx < split || modifiedIdx < hunk.lines.size(); )
-        {
+        while (baseIdx < split || modifiedIdx < hunk.lines.size()) {
             String baseLine = baseIdx < split ? hunk.lines.get(baseIdx) : "~";
             String modifiedLine = modifiedIdx < hunk.lines.size() ? hunk.lines.get(modifiedIdx) : "~";
             if (baseLine.startsWith("- "))
@@ -1123,7 +1123,7 @@ public final class ContextualPatch
         DELETE
     }
 
-    public static enum PatchStatus
+    public enum PatchStatus
     {
         Patched(true),
         Missing(false),
@@ -1131,7 +1131,7 @@ public final class ContextualPatch
         Skipped(true),
         Fuzzed(true);
 
-        private boolean success;
+        private final boolean success;
 
         PatchStatus(boolean success)
         {
@@ -1147,11 +1147,11 @@ public final class ContextualPatch
     public static final class PatchReport
     {
 
-        private String target;
-        private boolean binary;
-        private PatchStatus status;
-        private Throwable failure;
-        private List<HunkReport> hunks;
+        private final String target;
+        private final boolean binary;
+        private final PatchStatus status;
+        private final Throwable failure;
+        private final List<HunkReport> hunks;
 
         PatchReport(String target, boolean binary, PatchStatus status, Throwable failure, List<HunkReport> hunks)
         {
@@ -1188,20 +1188,20 @@ public final class ContextualPatch
         }
     }
 
-    public static interface IContextProvider
+    public interface IContextProvider
     {
-        public List<String> getData(String target);
+        List<String> getData(String target);
 
-        public void setData(String target, List<String> data);
+        void setData(String target, List<String> data);
     }
 
     public static class HunkReport
     {
-        private PatchStatus status;
-        private Throwable failure;
-        private int index;
-        private int fuzz;
-        private int hunkID;
+        private final PatchStatus status;
+        private final Throwable failure;
+        private final int index;
+        private final int fuzz;
+        private final int hunkID;
         public Hunk hunk;
 
         public HunkReport(PatchStatus status, Throwable failure, int index, int fuzz, int hunkID)
