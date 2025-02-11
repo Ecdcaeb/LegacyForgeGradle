@@ -39,6 +39,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import net.minecraftforge.gradle.util.Utils;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.NamedDomainObjectContainer;
@@ -460,7 +461,7 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
      * The actual locations of each cache are specified elsewhere.
      * TODO: add see annotations
      * @param extension The extension object of this plugin
-     * @return whether or not to use the local cache
+     * @return whether to use the local cache
      */
     protected boolean useLocalCache(T extension)
     {
@@ -820,9 +821,7 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
         final Jar sourceJar = makeTask(TASK_SRC_JAR, Jar.class);
         final String retromappedSrc = getSourceSetFormatted(main, TMPL_RETROMAPED_RPL);
         sourceJar.from(main.getOutput().getResourcesDir());
-        //TODO : A better setter
-        sourceJar.getArchiveClassifier().convention("sources");
-        sourceJar.getArchiveClassifier().set("sources");
+        Utils.setProperty(sourceJar.getArchiveClassifier(), "source");
 
         sourceJar.dependsOn(main.getCompileJavaTaskName(), main.getProcessResourcesTaskName(), getSourceSetFormatted(main, TMPL_TASK_RETROMAP_RPL));
 

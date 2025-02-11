@@ -28,6 +28,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.jar.*;
 import java.util.zip.*;
@@ -86,12 +87,12 @@ public class TaskApplyBinPatchesTest extends TaskTest<TaskApplyBinPatches>
             packJar(new JarInputStream(new ByteArrayInputStream(uncompressedPatchJar)), patchOutputStream);
         }
 
-        try (JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(classJar)))
+        try (JarOutputStream jarOutputStream = new JarOutputStream(Files.newOutputStream(classJar.toPath())))
         {
             // TODO: add some test classes/resources?
         }
 
-        try (JarOutputStream inputOutputStream = new JarOutputStream(new BufferedOutputStream(new FileOutputStream(inputJar)));
+        try (JarOutputStream inputOutputStream = new JarOutputStream(new BufferedOutputStream(Files.newOutputStream(inputJar.toPath())));
              InputStream beforeInputStream = getClass().getResourceAsStream(BEFORE_PATH))
         {
             for (String directory : DIRECTORY_NAMES_IN_JAR)
