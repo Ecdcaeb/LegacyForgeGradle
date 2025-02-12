@@ -56,6 +56,7 @@ configurations {
     deployerJars
     shade
     compileOnly.extendsFrom shade
+    implementation.extendsFrom shade
     configureEach {
         resolutionStrategy {
             force 'org.ow2.asm:asm-commons:9.7.1'
@@ -138,7 +139,7 @@ import org.objectweb.asm.*
 import org.objectweb.asm.tree.*
 
 //TODO: Eclipse complains about unused messages. Find a way to make it shut up.
-class PatchJDTClasses extends DefaultTask {
+abstract class PatchJDTClasses extends DefaultTask {
     static def COMPILATION_UNIT_RESOLVER = 'org/eclipse/jdt/core/dom/CompilationUnitResolver'
     static def RANGE_EXTRACTOR = 'net/minecraftforge/srg2source/ast/RangeExtractor'
     def RESOLVE_METHOD = 'resolve([Ljava/lang/String;[Ljava/lang/String;[Ljava/lang/String;Lorg/eclipse/jdt/core/dom/FileASTRequestor;ILjava/util/Map;I)V'
@@ -175,7 +176,7 @@ class PatchJDTClasses extends DefaultTask {
 
                         //CompilationUnitResolver allows batch compiling, the problem is it is hardcoded to read the contents from a File.
                         //So we patch this call to redirect to us, so we can get the contents from our InputSupplier
-                        if (COMPILATION_UNIT_RESOLVER.equals(target)) {
+                        if (COMPILATION_UNIT_RESOLVER == target) {
                             logger.lifecycle('Transforming: ' + target + ' From: ' + lib)
                             def resolve = node.methods.find{ RESOLVE_METHOD.equals(it.name + it.desc) }
                             if (resolve == null)
@@ -183,7 +184,7 @@ class PatchJDTClasses extends DefaultTask {
                             for (int x = 0; x < resolve.instructions.size(); x++) {
                                 def insn = resolve.instructions.get(x)
                                 if (insn.type == AbstractInsnNode.METHOD_INSN) {
-                                    if (GET_CONTENTS.equals(insn.owner + '.' + insn.name + insn.desc)) {
+                                    if (GET_CONTENTS == insn.owner + '.' + insn.name + insn.desc) {
                                         if (
                                                 resolve.instructions.get(x - 5).opcode == Opcodes.NEW &&
                                                         resolve.instructions.get(x - 4).opcode == Opcodes.DUP &&
@@ -203,9 +204,9 @@ class PatchJDTClasses extends DefaultTask {
                                     }
                                 }
                             }
-                        } else if (RANGE_EXTRACTOR.equals(target)) {
-                            logger.lifecycle('Tansforming: ' + target + ' From: ' + lib)
-                            def marker = node.methods.find{ 'hasBeenASMPatched()Z'.equals(it.name + it.desc) }
+                        } else if (RANGE_EXTRACTOR == target) {
+                            logger.lifecycle('Transforming: ' + target + ' From: ' + lib)
+                            def marker = node.methods.find{ ('hasBeenASMPatched()Z' == it.name + it.desc) }
                             if (marker == null)
                                 throw new RuntimeException('Failed to patch ' + target + ': Could not find method hasBeenASMPatched()Z')
                             marker.instructions.clear()
@@ -232,12 +233,11 @@ class PatchJDTClasses extends DefaultTask {
         }
     }
 }
-
-task patchJDT(type: PatchJDTClasses) {
-    target PatchJDTClasses.COMPILATION_UNIT_RESOLVER
-    target PatchJDTClasses.RANGE_EXTRACTOR
+tasks.register("patchJDT", PatchJDTClasses){
+    target COMPILATION_UNIT_RESOLVER
+    target RANGE_EXTRACTOR
     configurations.shade.resolvedConfiguration.resolvedArtifacts.stream().filter { dep ->
-        dep.name.equals('org.eclipse.jdt.core') || dep.name.equals('Srg2Source')
+        dep.name == 'org.eclipse.jdt.core' || dep.name == 'Srg2Source'
     }
             .forEach { dep -> library dep.file }
     output file('build/patchJDT/patch_jdt.jar')
@@ -284,9 +284,10 @@ javadoc {
     options.addStringOption 'link', 'http://asm.ow2.org/asm50/javadoc/user/'
 }
 
-task javadocJar(type: Jar, dependsOn: javadoc) {
+tasks.register("javadocJar", Jar) {
+    dependsOn(javadoc)
     from javadoc
-    classifier = "javadoc"
+    archiveClassifier = "javadoc"
 }
 
 artifacts {
@@ -355,15 +356,14 @@ pluginBundle {
 file('build').mkdirs()
 file('build/version.txt').text = version
 
-def getGitHash() {
+static def getGitHash() {
     def process = 'git rev-parse --short HEAD'.execute()
     process.waitFor()
     return '-' + (process.exitValue() ? 'unknown' : process.text.trim())
 }
 
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
-
+tasks.register("sourcesJar", Jar) {
+    archiveClassifier = 'sources'
     from sourceSets.main.allSource
     exclude 'GradleStart.java', 'GradleStartServer.java'
 }
@@ -384,13 +384,14 @@ publishing {
         }
     }
     publications {
-        maven(MavenPublication) {
+        publicateLegacyForgeGradle(MavenPublication) {
             groupId = project.group
             artifactId = project.archivesBaseName
             version = project.version
             artifact jar
             artifact javadocJar
             artifact sourcesJar
+
         }
     }
 }

@@ -63,10 +63,7 @@ import org.gradle.api.internal.plugins.DslObject;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.plugins.JavaPlugin;
-import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.plugins.JavaPluginExtension;
-import org.gradle.api.plugins.scala.ScalaPlugin;
-import org.gradle.api.plugins.scala.ScalaPluginExtension;
 import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.*;
 import org.gradle.api.tasks.bundling.Jar;
@@ -546,7 +543,7 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
 
                 String capName = set.getName().substring(0, 1).toUpperCase() + set.getName().substring(1);
                 String taskPrefix = "source"+capName;
-                File dirRoot = new File(project.getBuildDir(), "sources/"+set.getName());
+                File dirRoot = new File(project.getLayout().getBuildDirectory().getAsFile().get(), "sources/"+set.getName());
 
                 // java
                 {
@@ -600,8 +597,7 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
                 // kotlin
                 if (project.getPlugins().hasPlugin("kotlin"))
                 {
-                    //TODO : update kotlin set
-                    KotlinSourceSet langSet = (KotlinSourceSet) new DslObject(set).getConvention().getPlugins().get("kotlin");
+                    KotlinSourceSet langSet = set.getExtensions().findByType(KotlinSourceSet.class);
                     File dir = new File(dirRoot, "kotlin");
 
                     task = makeTask(taskPrefix+"Kotlin", TaskSourceCopy.class);
@@ -775,7 +771,7 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
             DelayedFile retroMapped = delayedFile(getSourceSetFormatted(set, TMPL_RETROMAPED));
 
             final ExtractS2SRangeTask extractRangemap = makeTask(getSourceSetFormatted(set, TMPL_TASK_RANGEMAP), ExtractS2SRangeTask.class);
-            extractRangemap.addSource(new File(project.getBuildDir(), "sources/main/java"));
+            extractRangemap.addSource(new File(project.getLayout().getBuildDirectory().getAsFile().get(), "sources/main/java"));
             extractRangemap.setRangeMap(rangeMap);
             project.afterEvaluate(project -> extractRangemap.addLibs(set.getCompileClasspath()));
 
@@ -794,7 +790,7 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
             // for replaced sources
             rangeMap = delayedFile(getSourceSetFormatted(set, TMPL_RANGEMAP_RPL));
             retroMapped = delayedFile(getSourceSetFormatted(set, TMPL_RETROMAPED_RPL));
-            File replacedSource = new File(project.getBuildDir(), "sources/"+set.getName()+"/java");
+            File replacedSource = new File(project.getLayout().getBuildDirectory().getAsFile().get(), "sources/"+set.getName()+"/java");
 
             final ExtractS2SRangeTask extractRangemap2 = makeTask(getSourceSetFormatted(set, TMPL_TASK_RANGEMAP_RPL), ExtractS2SRangeTask.class);
             extractRangemap2.addSource(replacedSource);
@@ -851,7 +847,7 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
             }
             if (project.getPlugins().hasPlugin("kotlin"))
             {
-                KotlinSourceSet langSet = (KotlinSourceSet) new DslObject(main).getConvention().getPlugins().get("kotlin");
+                KotlinSourceSet langSet = main.getExtensions().findByType(KotlinSourceSet.class);
                 sourceJar.from(langSet.getKotlin());
             }
         });

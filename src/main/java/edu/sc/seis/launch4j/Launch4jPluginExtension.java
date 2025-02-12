@@ -55,7 +55,7 @@ public class Launch4jPluginExtension implements Serializable
 	
     public File getXmlOutFileForProject(Project project)
     {
-        return project.file(project.getBuildDir() + "/" + outputDir + "/" + xmlFileName);
+        return project.file(project.getLayout().getBuildDirectory().getAsFile().get() + "/" + outputDir + "/" + xmlFileName);
     }
 
     void initExtensionDefaults(Project project)

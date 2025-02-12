@@ -21,7 +21,7 @@ package net.minecraftforge.gradle.testsupport;
 
 /**
  * Marker interface for tests which create and use temporary files
- *
+ * <p>
  * This allows these tests to be excluded with junit's category system if required.
  *
  * @see <a href="https://github.com/junit-team/junit4/wiki/categories">JUnit Wiki: Categories</a>

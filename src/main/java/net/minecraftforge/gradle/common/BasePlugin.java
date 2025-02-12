@@ -34,10 +34,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import net.minecraftforge.gradle.util.json.version.ManifestVersion;
-import org.gradle.api.DefaultTask;
-import org.gradle.api.Plugin;
-import org.gradle.api.Project;
-import org.gradle.api.Task;
+import org.gradle.api.*;
+import org.gradle.api.artifacts.ArtifactView;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.Configuration.State;
@@ -121,7 +119,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
                 throw new RuntimeException("ForgeGradle does not currently support Java 9");
         }
 
-        if (project.getBuildDir().getAbsolutePath().contains("!"))
+        if (project.getLayout().getBuildDirectory().getAsFile().get().getAbsolutePath().contains("!"))
         {
             LOGGER.error("Build path has !, This will screw over a lot of java things as ! is used to denote archive paths, REMOVE IT if you want to continue");
             throw new RuntimeException("Build path contains !");
@@ -129,7 +127,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
 
         // set the obvious replacements
         replacer.putReplacement(REPLACE_CACHE_DIR, cacheFile("").getAbsolutePath());
-        replacer.putReplacement(REPLACE_BUILD_DIR, project.getBuildDir().getAbsolutePath());
+        replacer.putReplacement(REPLACE_BUILD_DIR, project.getLayout().getBuildDirectory().getAsFile().get().getAbsolutePath());
 
         // logging
         {
@@ -349,11 +347,13 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
         // Get dependencies from current FG
         Project parent = project;
         Dependency fgDepTemp = null;
+        String fgDepTemp_group_name_version = null; // group:name:version
         Configuration buildscriptClasspath = null;
         while (parent != null && fgDepTemp == null) {
             buildscriptClasspath = parent.getBuildscript().getConfigurations().getByName("classpath");
             fgDepTemp = Iterables.getFirst(buildscriptClasspath.getDependencies().matching(element -> element.getName().equals(GROUP_FG)), null);
             parent = parent.getParent();
+            fgDepTemp_group_name_version = fgDepTemp.getGroup() + ':' + fgDepTemp.getName() + ':' + fgDepTemp.getVersion();
         }
         final Dependency fgDep = fgDepTemp;
         if (fgDep == null) {
@@ -362,6 +362,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
             return;
         }
         // This adds all of the dependencies of FG
+        buildscriptClasspath.getIncoming().artifactView(viewConfiguration -> viewConfiguration.componentFilter(element -> element.contentEquals(fgDep)))
         deps.add(CONFIG_FFI_DEPS, project.files(buildscriptClasspath.getResolvedConfiguration().getFiles(element -> element.contentEquals(fgDep))));
         // And this adds the groovy dep. FFI shouldn't need Gradle.
         deps.add(CONFIG_FFI_DEPS, deps.localGroovy());

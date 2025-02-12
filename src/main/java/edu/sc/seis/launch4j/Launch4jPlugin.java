@@ -138,7 +138,7 @@ public class Launch4jPlugin implements Plugin<Project>
             public File call(Object... obj)
             {
                 Launch4jPluginExtension ext = ((Launch4jPluginExtension) task.getProject().getExtensions().getByName(Launch4jPlugin.LAUNCH4J_CONFIGURATION_NAME));
-                return task.getProject().file(task.getProject().getBuildDir() + "/" + ext.getOutputDir() + "/lib");
+                return task.getProject().file(task.getProject().getLayout().getBuildDirectory().getAsFile().get() + "/" + ext.getOutputDir() + "/lib");
             }
         });
         return task;
@@ -153,7 +153,7 @@ public class Launch4jPlugin implements Plugin<Project>
             Launch4jPluginExtension ext = ((Launch4jPluginExtension) task.getProject().getExtensions().getByName(Launch4jPlugin.LAUNCH4J_CONFIGURATION_NAME));
 
             task.getMainClass().set("net.sf.launch4j.Main");
-            task.args(project.getBuildDir() + "/" + ext.getOutputDir() + "/" + ext.getXmlFileName());
+            task.args(project.getLayout().getBuildDirectory().getAsFile().get() + "/" + ext.getOutputDir() + "/" + ext.getXmlFileName());
             task.setWorkingDir(project.file(ext.getChdir()));
             task.setClasspath(project.fileTree(launch4JDir));
         });

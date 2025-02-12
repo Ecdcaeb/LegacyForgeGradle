@@ -459,7 +459,7 @@ public class Constants
 
     public static File getTaskLogFile(Project project, String name)
     {
-        final File taskLogs = new File(project.getBuildDir(), "taskLogs");
+        final File taskLogs = new File(project.getLayout().getBuildDirectory().getAsFile().get(), "taskLogs");
         taskLogs.mkdirs();
         final File logFile = new File(taskLogs, name);
         logFile.delete();//Delete the old log
