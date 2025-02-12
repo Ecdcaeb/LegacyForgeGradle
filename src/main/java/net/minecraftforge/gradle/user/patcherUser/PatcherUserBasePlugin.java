@@ -32,7 +32,6 @@ import static net.minecraftforge.gradle.user.patcherUser.PatcherUserConstants.*;
 
 import java.io.File;
 
-import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.tasks.SourceSet;
 

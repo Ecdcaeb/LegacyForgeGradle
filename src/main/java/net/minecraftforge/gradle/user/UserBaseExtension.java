@@ -32,7 +32,6 @@ import groovy.lang.Closure;
 import net.minecraftforge.gradle.common.BaseExtension;
 import net.minecraftforge.gradle.common.Constants;
 import org.gradle.api.file.FileCollection;
-import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.tasks.SourceSet;
 

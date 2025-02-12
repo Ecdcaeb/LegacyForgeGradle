@@ -33,9 +33,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import net.minecraftforge.gradle.util.Utils;
 import net.minecraftforge.gradle.util.json.version.ManifestVersion;
 import org.gradle.api.*;
-import org.gradle.api.artifacts.ArtifactView;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.Configuration.State;
@@ -347,13 +347,11 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
         // Get dependencies from current FG
         Project parent = project;
         Dependency fgDepTemp = null;
-        String fgDepTemp_group_name_version = null; // group:name:version
         Configuration buildscriptClasspath = null;
         while (parent != null && fgDepTemp == null) {
             buildscriptClasspath = parent.getBuildscript().getConfigurations().getByName("classpath");
             fgDepTemp = Iterables.getFirst(buildscriptClasspath.getDependencies().matching(element -> element.getName().equals(GROUP_FG)), null);
             parent = parent.getParent();
-            fgDepTemp_group_name_version = fgDepTemp.getGroup() + ':' + fgDepTemp.getName() + ':' + fgDepTemp.getVersion();
         }
         final Dependency fgDep = fgDepTemp;
         if (fgDep == null) {
@@ -361,9 +359,8 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
             LOGGER.warn("Missing FG dep in buildscript classpath. Forking decompilation is likely to break.");
             return;
         }
-        // This adds all of the dependencies of FG
-        buildscriptClasspath.getIncoming().artifactView(viewConfiguration -> viewConfiguration.componentFilter(element -> element.contentEquals(fgDep)))
-        deps.add(CONFIG_FFI_DEPS, project.files(buildscriptClasspath.getResolvedConfiguration().getFiles(element -> element.contentEquals(fgDep))));
+        // This adds all the dependencies of FG
+        deps.add(CONFIG_FFI_DEPS, project.files(Utils.getFilteredDependencyFiles(buildscriptClasspath.getIncoming(), fgDep.getGroup(), fgDep.getName(), fgDep.getVersion())));
         // And this adds the groovy dep. FFI shouldn't need Gradle.
         deps.add(CONFIG_FFI_DEPS, deps.localGroovy());
     }

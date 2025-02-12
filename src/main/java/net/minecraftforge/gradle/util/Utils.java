@@ -1,14 +1,8 @@
 package net.minecraftforge.gradle.util;
 
-import org.gradle.api.artifacts.Dependency;
-import org.gradle.api.artifacts.LenientConfiguration;
-import org.gradle.api.artifacts.ResolveException;
-import org.gradle.api.artifacts.ResolvedConfiguration;
-import org.gradle.api.internal.artifacts.ivyservice.ResolvedFilesCollectingVisitor;
+import org.gradle.api.artifacts.*;
+import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
 import org.gradle.api.provider.Property;
-import org.gradle.api.specs.Spec;
-import org.gradle.internal.deprecation.DeprecationLogger;
-import org.gradle.internal.deprecation.DeprecationMessageBuilder;
 
 import java.io.File;
 import java.util.Set;
@@ -19,10 +13,15 @@ public class Utils {
         property.set(value);
     }
 
-    public static Set<File> getFiles(LenientConfiguration lenientConfiguration, Spec<? super Dependency> dependencySpec) throws ResolveException {
-        ResolvedFilesCollectingVisitor visitor = new ResolvedFilesCollectingVisitor();
-        lenientConfiguration.select(dependencySpec).visitArtifacts(visitor, false);
-        this.resolutionHost.rethrowFailure("files", visitor.getFailures());
-        return visitor.getFiles();
+    public static Set<File> getFilteredDependencyFiles(ResolvableDependencies incoming, String group, String name, String version) {
+        return incoming.artifactView(viewConfiguration -> viewConfiguration.componentFilter(componentIdentifier -> {
+            if (componentIdentifier instanceof ModuleComponentIdentifier) {
+                ModuleComponentIdentifier moduleComponentIdentifier = (ModuleComponentIdentifier) componentIdentifier;
+                return moduleComponentIdentifier.getGroup().equals(group)
+                        && moduleComponentIdentifier.getModule().equals(name)
+                        && moduleComponentIdentifier.getVersion().equals(version);
+            }
+            return false;
+        })).getFiles().getFiles();
     }
 }

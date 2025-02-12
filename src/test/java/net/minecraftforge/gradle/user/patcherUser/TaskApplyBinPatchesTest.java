@@ -64,7 +64,6 @@ public class TaskApplyBinPatchesTest extends TaskTest<TaskApplyBinPatches>
         File outputJar = temporaryFolder.newFile("after.jar");
         File patchJar = temporaryFolder.newFile("patches.jar.pack200.lzma");
         File classJar = temporaryFolder.newFile("empty.jar");
-        File resourceJar = classJar;
 
 
         byte[] uncompressedPatchJar;
@@ -115,7 +114,7 @@ public class TaskApplyBinPatchesTest extends TaskTest<TaskApplyBinPatches>
         taskApplyBinPatches.setClassJar(classJar);
         taskApplyBinPatches.setPatches(patchJar);
         taskApplyBinPatches.setOutJar(outputJar);
-        taskApplyBinPatches.setResourceJar(resourceJar);
+        taskApplyBinPatches.setResourceJar(classJar);
         taskApplyBinPatches.doTask();
 
         Assert.assertTrue("File '" + outputJar + "' should exist", outputJar.isFile());
