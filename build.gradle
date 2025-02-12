@@ -18,7 +18,7 @@ apply plugin: 'maven-publish'
 apply plugin: "com.gradle.plugin-publish"
 
 group = 'io.github.ecdcaeb'
-version = '0.3.2'
+version = '0.3.3'
 archivesBaseName = 'LegacyForgeGradle'
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(8)
