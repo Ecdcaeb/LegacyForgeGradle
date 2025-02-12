@@ -69,7 +69,7 @@ dependencies {
 
     // moved to the beginning to be the overrider
     //implementation 'org.ow2.asm:asm-debug-all:6.0'
-    implementation 'com.google.guava:guava:32.0.1-android'
+    implementation 'com.google.guava:guava:33.4.0-android'
 
     implementation 'net.sf.opencsv:opencsv:2.3' // reading CSVs.. also used by SpecialSource
     implementation 'com.cloudbees:diff4j:1.1' // for difing and patching
