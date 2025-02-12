@@ -91,9 +91,9 @@ public class FileLogListener implements StandardOutputListener, BuildListener
     }
 
     @Override
-    public void projectsEvaluated(@NotNull Gradle arg0) {}  // nothing
+    public void projectsEvaluated(@NotNull Gradle arg0) { }  // nothing
     
     @Override
-    public void settingsEvaluated(@NotNull Settings arg0) {} // nothing
+    public void settingsEvaluated(@NotNull Settings arg0) { } // nothing
 
 }

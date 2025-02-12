@@ -7,8 +7,8 @@ buildscript {
     dependencies {
         classpath "com.gradle.publish:plugin-publish-plugin:0.9.1"
         classpath 'nl.javadude.gradle.plugins:license-gradle-plugin:0.11.0'
-        classpath 'org.ow2.asm:asm:6.2.1'
-        classpath 'org.ow2.asm:asm-tree:6.2.1'
+        classpath 'org.ow2.asm:asm:9.7.1'
+        classpath 'org.ow2.asm:asm-tree:9.7.1'
     }
 }
 
@@ -128,6 +128,7 @@ processResources {
     from(sourceSets.main.resources.srcDirs) {
         include 'forgegradle.version.txt'
         expand 'version': project.version
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
 }
 
@@ -139,9 +140,9 @@ import org.objectweb.asm.tree.*
 abstract class PatchJDTClasses extends DefaultTask {
     static def COMPILATION_UNIT_RESOLVER = 'org/eclipse/jdt/core/dom/CompilationUnitResolver'
     static def RANGE_EXTRACTOR = 'net/minecraftforge/srg2source/ast/RangeExtractor'
-    def RESOLVE_METHOD = 'resolve([Ljava/lang/String;[Ljava/lang/String;[Ljava/lang/String;Lorg/eclipse/jdt/core/dom/FileASTRequestor;ILjava/util/Map;I)V'
-    def GET_CONTENTS = 'org/eclipse/jdt/internal/compiler/util/Util.getFileCharContent(Ljava/io/File;Ljava/lang/String;)[C'
-    def HOOK_DESC_RESOLVE = '(Ljava/lang/String;Ljava/lang/String;)[C'
+    static def RESOLVE_METHOD = 'resolve([Ljava/lang/String;[Ljava/lang/String;[Ljava/lang/String;Lorg/eclipse/jdt/core/dom/FileASTRequestor;ILjava/util/Map;I)V'
+    static def GET_CONTENTS = 'org/eclipse/jdt/internal/compiler/util/Util.getFileCharContent(Ljava/io/File;Ljava/lang/String;)[C'
+    static def HOOK_DESC_RESOLVE = '(Ljava/lang/String;Ljava/lang/String;)[C'
 
     @Input def targets = [] as Set
     @Input def libraries = [] as Set

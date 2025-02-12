@@ -46,6 +46,7 @@ import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.plugins.ExtraPropertiesExtension;
 import org.gradle.api.tasks.Delete;
+import org.gradle.build.event.BuildEventsListenerRegistry;
 import org.gradle.testfixtures.ProjectBuilder;
 
 import com.google.common.base.Charsets;
