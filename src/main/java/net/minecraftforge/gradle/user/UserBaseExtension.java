@@ -33,6 +33,7 @@ import net.minecraftforge.gradle.common.BaseExtension;
 import net.minecraftforge.gradle.common.Constants;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.plugins.JavaPluginConvention;
+import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.tasks.SourceSet;
 
 public class UserBaseExtension extends BaseExtension
@@ -410,7 +411,7 @@ public class UserBaseExtension extends BaseExtension
             return (SourceSet) obj;
         else {
             String name = obj.toString();
-            JavaPluginConvention javaConv = (JavaPluginConvention) project.getConvention().getPlugins().get("java");
+            JavaPluginExtension javaConv = project.getExtensions().findByType(JavaPluginExtension.class);
             return javaConv.getSourceSets().getByName(name);
         }
     }
@@ -425,7 +426,7 @@ public class UserBaseExtension extends BaseExtension
             set = (SourceSet) obj;
         else if (obj instanceof String)
         {
-            JavaPluginConvention javaConv = (JavaPluginConvention) project.getConvention().getPlugins().get("java");
+            JavaPluginExtension javaConv = project.getExtensions().findByType(JavaPluginExtension.class);
             set = javaConv.getSourceSets().findByName((String) obj);
         }
 

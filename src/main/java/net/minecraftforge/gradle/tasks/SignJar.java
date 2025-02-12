@@ -115,7 +115,7 @@ public class SignJar extends DefaultTask implements PatternFilterable
                     }
                     catch (IOException e)
                     {
-                        e.printStackTrace();
+                        getLogger().error("[processInputJar]", e);
                     }
                 }
 
@@ -143,7 +143,7 @@ public class SignJar extends DefaultTask implements PatternFilterable
                     }
                     catch (IOException e)
                     {
-                        e.printStackTrace();
+                        getLogger().error("[processInputJar/visitFile]", e);
                     }
                 }
 

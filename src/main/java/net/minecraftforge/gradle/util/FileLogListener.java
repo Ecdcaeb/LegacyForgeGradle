@@ -35,27 +35,25 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FileLogListenner implements StandardOutputListener, BuildListener
+public class FileLogListener implements StandardOutputListener, BuildListener
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FileLogListenner.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileLogListener.class);
 
-    private final File out;
     private BufferedWriter writer;
     
-    public FileLogListenner(File file)
+    public FileLogListener(File file)
     {
-        out = file;
 
         try
         {
-            if (out.exists())
-                if (!out.delete()) LOGGER.error("Fail to delete file {}", file.getAbsoluteFile());
+            if (file.exists())
+                if (!file.delete()) LOGGER.error("Fail to delete file {}", file.getAbsoluteFile());
             else
-                if (!out.getParentFile().mkdirs()) LOGGER.error("Fail to create dir {}", out.getParentFile());
+                if (!file.getParentFile().mkdirs()) LOGGER.error("Fail to create dir {}", file.getParentFile());
 
-            if (!out.createNewFile()) LOGGER.error("Fail to create file {}", file.getAbsoluteFile());
+            if (!file.createNewFile()) LOGGER.error("Fail to create file {}", file.getAbsoluteFile());
             
-            writer = Files.newWriter(out, Charset.defaultCharset());
+            writer = Files.newWriter(file, Charset.defaultCharset());
         }
         catch (IOException e)
         {

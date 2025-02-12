@@ -60,13 +60,15 @@ import org.gradle.api.artifacts.result.ResolvedArtifactResult;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileTreeElement;
 import org.gradle.api.internal.plugins.DslObject;
+import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
+import org.gradle.api.plugins.JavaPluginExtension;
+import org.gradle.api.plugins.scala.ScalaPlugin;
+import org.gradle.api.plugins.scala.ScalaPluginExtension;
 import org.gradle.api.specs.Spec;
-import org.gradle.api.tasks.GroovySourceSet;
-import org.gradle.api.tasks.JavaExec;
-import org.gradle.api.tasks.ScalaSourceSet;
-import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.tasks.*;
 import org.gradle.api.tasks.bundling.Jar;
 import org.gradle.api.tasks.compile.GroovyCompile;
 import org.gradle.api.tasks.compile.JavaCompile;
@@ -102,6 +104,8 @@ import net.minecraftforge.gradle.util.delayed.DelayedFile;
 
 public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePlugin<T>
 {
+    private static final Logger LOGGER = Logging.getLogger(UserBasePlugin.class);
+
     private boolean madeDecompTasks = false; // to gaurd against stupid programmers
     private final Closure<Object> makeRunDir = new Closure<Object>(UserBasePlugin.class) {
         private static final long serialVersionUID = 7787405048420669566L;
@@ -283,7 +287,7 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
         task.setMethodCsv(delayedFile(CSV_METHOD));
 
         reobf.setMappingType(ReobfMappingType.NOTCH);
-        JavaPluginConvention java = (JavaPluginConvention) project.getConvention().getPlugins().get("java");
+        JavaPluginExtension java = project.getExtensions().findByType(JavaPluginExtension.class);
         reobf.setClasspath(java.getSourceSets().getByName("main").getCompileClasspath());
     }
 
@@ -481,7 +485,7 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
     protected void configureCompilation()
     {
         // get convention
-        JavaPluginConvention javaConv = (JavaPluginConvention) project.getConvention().getPlugins().get("java");
+        JavaPluginExtension javaConv = project.getExtensions().findByType(JavaPluginExtension.class);
 
         SourceSet main = javaConv.getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME);
         SourceSet test = javaConv.getSourceSets().getByName(SourceSet.TEST_SOURCE_SET_NAME);
@@ -532,7 +536,7 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
      */
     protected void createSourceCopyTasks()
     {
-        JavaPluginConvention javaConv = (JavaPluginConvention) project.getConvention().getPlugins().get("java");
+        JavaPluginExtension javaConv = project.getExtensions().findByType(JavaPluginExtension.class);
 
         Action<SourceSet> action = new Action<SourceSet>() {
             @Override
@@ -562,11 +566,11 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
                 // scala
                 if (project.getPlugins().hasPlugin("scala"))
                 {
-                    ScalaSourceSet langSet = (ScalaSourceSet) new DslObject(set).getConvention().getPlugins().get("scala");
+                    ScalaSourceDirectorySet langSet = set.getExtensions().findByType(ScalaSourceDirectorySet.class);
                     File dir = new File(dirRoot, "scala");
 
                     task = makeTask(taskPrefix+"Scala", TaskSourceCopy.class);
-                    task.setSource(langSet.getScala());
+                    task.setSource(langSet);
                     task.setOutput(dir);
 
                     // must get replacements from extension afterEValuate()
@@ -579,11 +583,11 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
                 // groovy
                 if (project.getPlugins().hasPlugin("groovy"))
                 {
-                    GroovySourceSet langSet = (GroovySourceSet) new DslObject(set).getConvention().getPlugins().get("groovy");
+                    GroovySourceDirectorySet langSet = set.getExtensions().findByType(GroovySourceDirectorySet.class);
                     File dir = new File(dirRoot, "groovy");
 
                     task = makeTask(taskPrefix+"Groovy", TaskSourceCopy.class);
-                    task.setSource(langSet.getGroovy());
+                    task.setSource(langSet);
                     task.setOutput(dir);
 
                     // must get replacements from extension afterEValuate()
@@ -596,6 +600,7 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
                 // kotlin
                 if (project.getPlugins().hasPlugin("kotlin"))
                 {
+                    //TODO : update kotlin set
                     KotlinSourceSet langSet = (KotlinSourceSet) new DslObject(set).getConvention().getPlugins().get("kotlin");
                     File dir = new File(dirRoot, "kotlin");
 
@@ -761,7 +766,7 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
 
     protected void configureRetromapping()
     {
-        JavaPluginConvention javaConv = (JavaPluginConvention) project.getConvention().getPlugins().get("java");
+        JavaPluginExtension javaConv = project.getExtensions().findByType(JavaPluginExtension.class);
 
         Action<SourceSet> retromapCreator = set -> {
 
@@ -841,8 +846,8 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
         project.afterEvaluate(project -> {
             if (project.getPlugins().hasPlugin("scala"))
             {
-                ScalaSourceSet langSet = (ScalaSourceSet) new DslObject(main).getConvention().getPlugins().get("scala");
-                sourceJar.from(langSet.getAllScala());
+                ScalaSourceDirectorySet langSet = main.getExtensions().findByType(ScalaSourceDirectorySet.class);
+                sourceJar.from(langSet);
             }
             if (project.getPlugins().hasPlugin("kotlin"))
             {
@@ -858,7 +863,7 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
         {
             JavaExec exec = makeTask("runClient", JavaExec.class);
             exec.getOutputs().dir(delayedFile(REPLACE_RUN_DIR));
-            exec.setMain(GRADLE_START_CLIENT);
+            exec.getMainClass().set(GRADLE_START_CLIENT);
             exec.doFirst(task -> ((JavaExec) task).workingDir(delayedFile(REPLACE_RUN_DIR)));
             exec.setStandardOutput(System.out);
             exec.setErrorOutput(System.err);
@@ -875,7 +880,7 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
         {
             JavaExec exec = makeTask("runServer", JavaExec.class);
             exec.getOutputs().dir(delayedFile(REPLACE_RUN_DIR));
-            exec.setMain(GRADLE_START_SERVER);
+            exec.getMainClass().set(GRADLE_START_SERVER);
             exec.doFirst(task -> ((JavaExec) task).workingDir(delayedFile(REPLACE_RUN_DIR)));
             exec.setStandardOutput(System.out);
             exec.setStandardInput(System.in);
@@ -1171,7 +1176,7 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
             }
             catch (Exception e)
             {
-                e.printStackTrace();
+                LOGGER.error("[configureIntellij]", e);
             }
         });
         task.setGroup(GROUP_FG);
@@ -1192,7 +1197,7 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
                 }
                 catch (Exception e)
                 {
-                    e.printStackTrace();
+                    LOGGER.error("[configureIntellij]", e);
                 }
 
                 return null;

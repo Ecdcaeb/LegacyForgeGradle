@@ -63,7 +63,7 @@ public class WriteCacheAction implements Action<Task>
             }
         }
         // error? spit it and do the task.
-        catch (Exception e)
+        catch (Throwable e)
         {
             ThrowableUtil.propagate(e);
         }

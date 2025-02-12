@@ -213,7 +213,7 @@ public class DownloadAssetsTask extends DefaultTask
                 catch (Exception e)
                 {
                     LOGGER.error("Error downloading asset (try {}) : {}", tryNum, asset.name);
-                    e.printStackTrace();
+                    LOGGER.error("    Exception: ", e);
                     worked = false;
                 }
             }

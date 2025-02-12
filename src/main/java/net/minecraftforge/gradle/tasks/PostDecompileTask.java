@@ -227,7 +227,7 @@ public class PostDecompileTask extends AbstractEditJarTask
                 }
                 else if (report.getStatus() == PatchStatus.Fuzzed) // catch fuzzed patches
                 {
-                    getLogger().log(LogLevel.INFO, "Patching fuzzed: " + report.getTarget(), report.getFailure());
+                    getLogger().info("Patching fuzzed: " + report.getTarget(), report.getFailure());
                     fuzzed = true;
 
                     for (HunkReport hunk : report.getHunks())

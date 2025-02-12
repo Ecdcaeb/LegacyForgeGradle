@@ -213,7 +213,7 @@ public class JenkinsChangelog extends DefaultTask
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            getLogger().error("getBuildInfo", e);
             getLogger().lifecycle(data);
         }
         return new ArrayList<>();
@@ -258,7 +258,7 @@ public class JenkinsChangelog extends DefaultTask
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            getLogger().error("getLatestBuild", e);
             getLogger().lifecycle(data);
         }
     }

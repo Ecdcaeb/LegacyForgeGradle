@@ -43,6 +43,8 @@ import java.util.zip.ZipInputStream;
 
 import org.gradle.api.Project;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -61,6 +63,8 @@ import net.minecraftforge.gradle.util.json.version.OS;
 
 public class Constants
 {
+
+    private static final Logger LOGGER = Logging.getLogger(Constants.class);
     // OS
     public enum SystemArch
     {
@@ -384,7 +388,7 @@ public class Constants
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            LOGGER.error("[hash]", e);
         }
 
         return null;
@@ -415,7 +419,7 @@ public class Constants
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            LOGGER.error("[hashZip]", e);
         }
 
         return null;
@@ -447,7 +451,7 @@ public class Constants
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            LOGGER.error("[hashBytes]", e);
         }
 
         return null;

@@ -73,7 +73,7 @@ import net.minecraftforge.gradle.tasks.JenkinsChangelog;
 import net.minecraftforge.gradle.tasks.MergeJars;
 import net.minecraftforge.gradle.tasks.SignJar;
 import net.minecraftforge.gradle.tasks.SplitJarTask;
-import net.minecraftforge.gradle.util.FileLogListenner;
+import net.minecraftforge.gradle.util.FileLogListener;
 import net.minecraftforge.gradle.util.GradleConfigurationException;
 import net.minecraftforge.gradle.util.delayed.DelayedFile;
 import net.minecraftforge.gradle.util.delayed.DelayedFileTree;
@@ -139,7 +139,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
 
             replacer.putReplacement(REPLACE_PROJECT_CACHE_DIR, projectCacheDir.getAbsolutePath());
 
-            FileLogListenner listener = new FileLogListenner(new File(projectCacheDir, "gradle.log"));
+            FileLogListener listener = new FileLogListener(new File(projectCacheDir, "gradle.log"));
             project.getLogging().addStandardOutputListener(listener);
             project.getLogging().addStandardErrorListener(listener);
             project.getGradle().addBuildListener(listener);
@@ -720,7 +720,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
             }
             catch (Exception e)
             {
-                e.printStackTrace();
+                LOGGER.error("[getWithEtag]", e);
             }
         }
 

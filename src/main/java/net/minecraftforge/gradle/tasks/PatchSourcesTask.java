@@ -230,7 +230,7 @@ public class PatchSourcesTask extends AbstractEditJarTask
                         }
                         else if (hunk.getStatus() == PatchStatus.Fuzzed)
                         {
-                            getLogger().info("  {} fuzzed {}!", hunk.getHunkID(), hunk.getFuzz());
+                            getLogger().info("[catch failed patches]  {} fuzzed {}!", hunk.getHunkID(), hunk.getFuzz());
                         }
                     }
 
@@ -264,7 +264,7 @@ public class PatchSourcesTask extends AbstractEditJarTask
                         // catch the failed hunks
                         if (hunk.getStatus() == PatchStatus.Fuzzed)
                         {
-                            getLogger().info("  {} fuzzed {}!", hunk.getHunkID(), hunk.getFuzz());
+                            getLogger().info("[catch fuzzed patches]  {} fuzzed {}!", hunk.getHunkID(), hunk.getFuzz());
                         }
                     }
 

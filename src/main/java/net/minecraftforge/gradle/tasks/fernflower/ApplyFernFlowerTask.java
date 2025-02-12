@@ -127,7 +127,7 @@ public class ApplyFernFlowerTask extends CachedTask {
     {
         ExecResult result = getProject().javaexec(exec -> {
             exec.classpath(forkedClasspath);
-            exec.setMain(FernFlowerInvoker.class.getName());
+            exec.getMainClass().set(FernFlowerInvoker.class.getName());
             exec.setJvmArgs(ImmutableList.of("-Xmx3G"));
             // pass the temporary file
             exec.args(data);

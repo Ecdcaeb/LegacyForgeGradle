@@ -93,7 +93,7 @@ public class LiteModTask extends DefaultTask
     
     public void json(Closure<?> configureClosure) throws IOException
     {
-        ClosureBackedAction.execute(this.getJson(), configureClosure);
+        this.getProject().configure(this.getJson(), configureClosure);
     }
 
     public String getBuildNumber() throws IOException

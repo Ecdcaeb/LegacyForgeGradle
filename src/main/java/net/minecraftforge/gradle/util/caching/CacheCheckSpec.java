@@ -24,12 +24,14 @@ import java.nio.charset.Charset;
 
 import org.gradle.api.Task;
 import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
 import org.gradle.api.specs.Spec;
 
 import com.google.common.io.Files;
 
 public class CacheCheckSpec implements Spec<Task>
 {
+    private static final Logger LOGGER = Logging.getLogger(CacheCheckSpec.class);
     private final CacheContainer container;
 
     public CacheCheckSpec(CacheContainer container)
@@ -93,7 +95,7 @@ public class CacheCheckSpec implements Spec<Task>
             // error? spit it and do the task.
             catch (Exception e)
             {
-                e.printStackTrace();
+                LOGGER.error("[isSatisfiedBy]", e);
                 return true;
             }
         }

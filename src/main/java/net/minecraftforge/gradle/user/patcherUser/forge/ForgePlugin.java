@@ -28,6 +28,8 @@ import java.io.IOException;
 import java.util.List;
 
 import org.gradle.api.Action;
+import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
 import org.gradle.api.tasks.bundling.Jar;
 
 import com.google.common.base.Strings;
@@ -39,11 +41,10 @@ import net.minecraftforge.gradle.user.TaskSingleReobf;
 import net.minecraftforge.gradle.user.UserConstants;
 import net.minecraftforge.gradle.user.patcherUser.PatcherUserBasePlugin;
 import net.minecraftforge.gradle.util.GradleConfigurationException;
-import net.minecraftforge.gradle.util.json.fgversion.FGVersion;
-import net.minecraftforge.gradle.util.json.fgversion.FGVersionWrapper;
 
 public class ForgePlugin extends PatcherUserBasePlugin<ForgeExtension>
 {
+    private static final Logger LOGGER = Logging.getLogger(ForgePlugin.class);
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     protected void applyUserPlugin()
@@ -101,7 +102,7 @@ public class ForgePlugin extends PatcherUserBasePlugin<ForgeExtension>
                 }
                 catch (IOException e)
                 {
-                    e.printStackTrace();
+                    LOGGER.error("[applyUserPlugin/eclipse]", e);
                 }
             }
         });
@@ -134,11 +135,6 @@ public class ForgePlugin extends PatcherUserBasePlugin<ForgeExtension>
                 jarTask.getManifest().getAttributes().put("FMLCorePlugin", ext.getCoreMod());
             }
         }
-    }
-
-    @Override
-    protected void onVersionCheck(FGVersion version, FGVersionWrapper wrapper)
-    {
     }
 
     @Override
