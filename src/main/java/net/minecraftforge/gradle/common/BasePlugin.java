@@ -110,14 +110,13 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
             int major = Integer.parseInt(split.get(0));
             int minor = Integer.parseInt(split.get(1).split("-")[0]);
 
-            if (major <= 1 || (major == 2 && minor < 3))
-                throw new RuntimeException("ForgeGradle 2.0 requires Gradle 2.3 or above.");
+            if (major <= 7 || minor < 10)
+                throw new RuntimeException("LegacyForgeGradle requires Gradle 8.10 or above.");
         }
 
         // check for java version
         {
-            if ("9".equals(System.getProperty("java.specification.version")) && !"true".equals(System.getProperty("forgegradle.overrideJava9Check")))
-                throw new RuntimeException("ForgeGradle does not currently support Java 9");
+
         }
 
         if (project.getLayout().getBuildDirectory().getAsFile().get().getAbsolutePath().contains("!"))
@@ -254,13 +253,14 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
             return;
 
         LOGGER.lifecycle("#################################################");
-        LOGGER.lifecycle("         ForgeGradle - Unoffical {}        ", this.getVersionString());
-        LOGGER.lifecycle("  https://github.com/Ecdcaeb/ForgeGradle/tree/FG_2.4  ");
+        LOGGER.lifecycle("         LegacyForgeGradle  {}        ", this.getVersionString());
+        LOGGER.lifecycle("  https://github.com/Ecdcaeb/LegactForgeGradle/  ");
         LOGGER.lifecycle("#################################################");
         LOGGER.lifecycle("                 Powered by MCP                  ");
         LOGGER.lifecycle("             http://modcoderpack.com             ");
         LOGGER.lifecycle("     by: Searge, ProfMobius, R4wk, ZeuX          ");
         LOGGER.lifecycle("     Fesh0r, IngisKahn, bspkrs, LexManos         ");
+        LOGGER.lifecycle("                   Hileb                         ");
         LOGGER.lifecycle("#################################################");
 
         displayBanner = false;
