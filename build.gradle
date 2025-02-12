@@ -81,7 +81,7 @@ dependencies {
     implementation 'com.nothome:javaxdelta:2.0.1' // GDIFF implementation for BinPatches
     implementation 'com.google.code.gson:gson:2.8.9' // Used instead of Argo for buuilding changelog.
     implementation 'com.github.tony19:named-regexp:0.2.3' // 1.7 Named regexp features
-    implementation 'net.minecraftforge:forgeflower:1.0.342-SNAPSHOT' // Fernflower Forge edition
+    implementation 'net.minecraftforge:forgeflower:2.0.674.3' // Fernflower Forge edition
 
     shade 'net.md-5:SpecialSource:1.8.2' // deobf and reobf
 
