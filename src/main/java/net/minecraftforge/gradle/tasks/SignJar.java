@@ -1,6 +1,7 @@
 /*
  * A Gradle plugin for the creation of Minecraft mods and MinecraftForge plugins.
  * Copyright (C) 2013-2019 Minecraft Forge
+ * Copyright (C) 2020-2023 anatawa12 and other contributors
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -27,16 +28,21 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.jar.JarOutputStream;
+import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.gradle.api.DefaultTask;
+import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTreeElement;
 import org.gradle.api.file.FileVisitDetails;
 import org.gradle.api.file.FileVisitor;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
+import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.util.PatternFilterable;
@@ -52,7 +58,7 @@ import groovy.util.MapEntry;
 public class SignJar extends DefaultTask implements PatternFilterable
 {
     //@formatter:off
-    @Input      private PatternSet patternSet = new PatternSet();
+                private PatternSet patternSet = new PatternSet();
     @Input      private Object     alias;
     @Input      private Object     storePass;
     @Input      private Object     keyPass;
@@ -183,6 +189,11 @@ public class SignJar extends DefaultTask implements PatternFilterable
         }
     }
 
+    @InputFiles
+    public Provider<FileCollection> getInputFiles() {
+        return getProject().provider(() -> getProject().zipTree(inputFile).matching(patternSet));
+    }
+
     @Override
     public PatternFilterable exclude(String... arg0)
     {
@@ -208,12 +219,14 @@ public class SignJar extends DefaultTask implements PatternFilterable
         return patternSet.exclude(arg0);
     }
 
+    @Internal
     @Override
     public Set<String> getExcludes()
     {
         return patternSet.getExcludes();
     }
 
+    @Internal
     @Override
     public Set<String> getIncludes()
     {

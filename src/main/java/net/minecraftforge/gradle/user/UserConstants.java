@@ -1,6 +1,7 @@
 /*
  * A Gradle plugin for the creation of Minecraft mods and MinecraftForge plugins.
  * Copyright (C) 2013-2019 Minecraft Forge
+ * Copyright (C) 2020-2023 anatawa12 and other contributors
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -29,6 +30,11 @@ public class UserConstants
     // @formatter:off
     private UserConstants() {}
     // @formatter:on
+
+    // build configurations. same as in DevConstants
+    public static final String CONFIG_RUNTIME_CLASSPATH = "runtimeClasspath";
+    public static final String CONFIG_RUNTIME = "runtimeOnly";
+    public static final String CONFIG_COMPILE = "implementation";
 
     public static final String CONFIG_MC              = "forgeGradleMc";
     public static final String CONFIG_START           = "forgeGradleGradleStart";

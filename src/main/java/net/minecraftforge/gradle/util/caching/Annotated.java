@@ -1,6 +1,7 @@
 /*
  * A Gradle plugin for the creation of Minecraft mods and MinecraftForge plugins.
  * Copyright (C) 2013-2019 Minecraft Forge
+ * Copyright (C) 2020-2023 anatawa12 and other contributors
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -18,6 +19,8 @@
  * USA
  */
 package net.minecraftforge.gradle.util.caching;
+
+import org.gradle.api.provider.Provider;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
@@ -53,6 +56,14 @@ class Annotated
     }
 
     public Object getValue(Object instance) throws NoSuchMethodException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException, InvocationTargetException
+    {
+        Object value = getValue0(instance);
+        if (value instanceof Provider<?>)
+            value = ((Provider<?>) value).get();
+        return value;
+    }
+
+    private Object getValue0(Object instance) throws NoSuchMethodException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException, InvocationTargetException
     {
         Method method;
 

@@ -1,6 +1,7 @@
 /*
  * A Gradle plugin for the creation of Minecraft mods and MinecraftForge plugins.
  * Copyright (C) 2013-2019 Minecraft Forge
+ * Copyright (C) 2020-2023 anatawa12 and other contributors
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -21,10 +22,14 @@ package net.minecraftforge.gradle.util.delayed;
 
 import groovy.lang.Closure;
 
+import java.util.Objects;
+
 @SuppressWarnings("serial")
 public abstract class DelayedBase<V> extends Closure<V>
 {
     protected TokenReplacer replacer;
+
+    public boolean opt;
 
     public DelayedBase(Class<?> owner, ReplacementProvider provider, String pattern)
     {
@@ -49,8 +54,19 @@ public abstract class DelayedBase<V> extends Closure<V>
     public final V call()
     {
         String replaced = null;
-        if (replacer != null)
-            replaced = replacer.replace();
+        if (opt) {
+            if (replacer == null) return null;
+            try {
+                replaced = replacer.replace();
+            } catch (RuntimeException e) {
+                if (e.getMessage().startsWith("MISSING REPLACEMENT DATA FOR "))
+                    return null;
+                throw e;
+            }
+        } else {
+            if (replacer != null)
+                replaced = replacer.replace();
+        }
         
         return resolveDelayed(replaced);
     }
@@ -70,6 +86,6 @@ public abstract class DelayedBase<V> extends Closure<V>
     @Override
     public String toString()
     {
-        return call().toString();
+        return Objects.toString(call());
     }
 }

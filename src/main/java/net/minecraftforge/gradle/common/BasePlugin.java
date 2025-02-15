@@ -1,6 +1,7 @@
 /*
  * A Gradle plugin for the creation of Minecraft mods and MinecraftForge plugins.
  * Copyright (C) 2013-2019 Minecraft Forge
+ * Copyright (C) 2020-2023 anatawa12 and other contributors
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -32,18 +33,23 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import net.minecraftforge.gradle.util.ReflectionUtil;
 import net.minecraftforge.gradle.util.json.version.ManifestVersion;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.artifacts.ArtifactRepositoryContainer;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.Configuration.State;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
+import org.gradle.api.artifacts.repositories.ArtifactRepository;
 import org.gradle.api.artifacts.repositories.FlatDirectoryArtifactRepository;
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
+import org.gradle.api.initialization.Settings;
+import org.gradle.api.initialization.dsl.ScriptHandler;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.plugins.ExtraPropertiesExtension;
@@ -65,6 +71,7 @@ import com.google.common.io.Files;
 import com.google.gson.reflect.TypeToken;
 
 import groovy.lang.Closure;
+import net.minecraftforge.gradle.GradleVersionUtils;
 import net.minecraftforge.gradle.tasks.CrowdinDownload;
 import net.minecraftforge.gradle.tasks.Download;
 import net.minecraftforge.gradle.tasks.DownloadAssetsTask;
@@ -171,7 +178,8 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
         project.allprojects(new Action<Project>() {
             public void execute(Project proj)
             {
-                addMavenRepo(proj, "forge", URL_FORGE_MAVEN);
+                // the forge's repository doesn't have pom file.
+                addMavenRepo(proj, "forge", URL_FORGE_MAVEN, false);
                 proj.getRepositories().mavenCentral();
                 addMavenRepo(proj, "minecraft", URL_LIBRARY);
             }
@@ -258,12 +266,20 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
                 "ext", "zip"
                 ));
 
+        // Check FG Version, unless its disabled
+        List<String> lines = Lists.newArrayListWithExpectedSize(5);
+        Object disableUpdateCheck = project.getProperties().get("net.minecraftforge.gradle.disableUpdateChecker");
+        if (!"true".equals(disableUpdateCheck) && !"yes".equals(disableUpdateCheck) && !new Boolean(true).equals(disableUpdateCheck))
+        {
+            doFGVersionCheck(lines);
+        }
+
         if (!displayBanner)
             return;
 
         LOGGER.lifecycle("#################################################");
-        LOGGER.lifecycle("         ForgeGradle - Unoffical {}        ", this.getVersionString());
-        LOGGER.lifecycle("  https://github.com/Ecdcaeb/ForgeGradle/tree/FG_2.4  ");
+        LOGGER.lifecycle("         ForgeGradle {}        ", this.getVersionString());
+        LOGGER.lifecycle("   https://github.com/anatawa12/ForgeGradle-2.3  ");
         LOGGER.lifecycle("#################################################");
         LOGGER.lifecycle("                 Powered by MCP                  ");
         LOGGER.lifecycle("             http://modcoderpack.com             ");
@@ -271,8 +287,49 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
         LOGGER.lifecycle("     Fesh0r, IngisKahn, bspkrs, LexManos         ");
         LOGGER.lifecycle("#################################################");
 
+        for (String str : lines)
+            LOGGER.lifecycle(str);
+
+        if (!hasMavenCentralBeforeJCenterInBuildScriptRepositories()) {
+            LOGGER.lifecycle("");
+            LOGGER.warn("The jcenter maven repository is going to be closed.");
+            LOGGER.warn("The fork of ForgeGradle by anatawa12 will use the maven central repository.");
+            LOGGER.warn("In the near future, this ForgeGradle will not be published onto the jcenter.");
+            LOGGER.warn("Please add the maven central repository to the repositories for");
+            LOGGER.warn("buildscript before or as a replacement of jcenter.");
+        }
+
         displayBanner = false;
     }
+
+    private boolean hasMavenCentralBeforeJCenterInBuildScriptRepositories() {
+        java.net.URI mavenCentralUrl;
+        try {
+            mavenCentralUrl = project.uri(ArtifactRepositoryContainer.class
+                    .getField("MAVEN_CENTRAL_URL").get(null));
+        } catch (IllegalAccessException | NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        }
+        Settings settings = ReflectionUtil.getSettingsOrNull(project.getGradle());
+        return hasMavenCentralBeforeJCenter(project.getBuildscript(), mavenCentralUrl) ||
+                (settings != null && hasMavenCentralBeforeJCenter(settings.getBuildscript(), mavenCentralUrl));
+    }
+
+    private boolean hasMavenCentralBeforeJCenter(
+            ScriptHandler buildScript, java.net.URI mavenCentralUrl) {
+        for (ArtifactRepository repository : project.getBuildscript().getRepositories()) {
+            if (repository instanceof MavenArtifactRepository) {
+                MavenArtifactRepository mvnRepo = (MavenArtifactRepository) repository;
+                // requires before the jcenter
+                if (mvnRepo.getUrl().toString().equals("https://jcenter.bintray.com/"))
+                    return false;
+                if (mvnRepo.getUrl().equals(mavenCentralUrl))
+                    return true;
+            }
+        }
+        return false;
+    }
+
 
     private String getVersionString()
     {
@@ -357,15 +414,17 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
         Project parent = project;
         Dependency fgDepTemp = null;
         Configuration buildscriptClasspath = null;
-        while (parent != null && fgDepTemp == null) {
-            buildscriptClasspath = parent.getBuildscript().getConfigurations().getByName("classpath");
-            fgDepTemp = Iterables.getFirst(buildscriptClasspath.getDependencies().matching(new Spec<Dependency>() {
-                @Override
-                public boolean isSatisfiedBy(Dependency element)
-                {
-                    return element.getName().equals(GROUP_FG);
-                }
-            }), null);
+        while (fgDepTemp == null) {
+            if (parent != null) {
+                buildscriptClasspath = parent.getBuildscript().getConfigurations().getByName("classpath");
+            } else {
+                Settings settings = ReflectionUtil.getSettingsOrNull(project.getGradle());
+                if (settings == null) break;
+                buildscriptClasspath = settings.getBuildscript().getConfigurations().getByName("classpath");
+            }
+            fgDepTemp = Iterables.getFirst(buildscriptClasspath.getDependencies()
+                    .matching(element -> element.getName().equals(GROUP_FG)), null);
+            if (parent == null) break;
             parent = parent.getParent();
         }
         final Dependency fgDep = fgDepTemp;
@@ -460,7 +519,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
                     return mcVersionJson.assetIndex.url;
                 }
             });
-            getAssetsIndex.setFile(delayedFile(JSON_ASSET_INDEX));
+            getAssetsIndex.setFile(delayedFileOpt(JSON_ASSET_INDEX));
             getAssetsIndex.setDieWithError(false);
             getAssetsIndex.dependsOn(getVersionJson);
         }
@@ -468,7 +527,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
         DownloadAssetsTask getAssets = makeTask(TASK_DL_ASSETS, DownloadAssetsTask.class);
         {
             getAssets.setAssetsDir(delayedFile(DIR_ASSETS));
-            getAssets.setAssetsIndex(delayedFile(JSON_ASSET_INDEX));
+            getAssets.setAssetsIndex(delayedFileOpt(JSON_ASSET_INDEX));
             getAssets.dependsOn(getAssetsIndex);
         }
 
@@ -643,14 +702,31 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
         project.apply(ImmutableMap.of("plugin", plugin));
     }
 
-    public MavenArtifactRepository addMavenRepo(Project proj, final String name, final String url)
+    public MavenArtifactRepository addMavenRepo(Project proj, final String name, final String url) {
+        return addMavenRepo(proj, name, url, true);
+    }
+
+    public MavenArtifactRepository addMavenRepo(final Project proj, final String name, final String url, final boolean usePom)
     {
         return proj.getRepositories().maven(new Action<MavenArtifactRepository>() {
             @Override
-            public void execute(MavenArtifactRepository repo)
+            public void execute(final MavenArtifactRepository repo)
             {
                 repo.setName(name);
                 repo.setUrl(url);
+                if (!usePom) {
+                    GradleVersionUtils.ifAfter("4.5", new Runnable() {
+                        @Override
+                        public void run() {
+                            repo.metadataSources(new Action<MavenArtifactRepository.MetadataSources>() {
+                                @Override
+                                public void execute(MavenArtifactRepository.MetadataSources metadataSources) {
+                                    metadataSources.artifact();
+                                }
+                            });
+                        }
+                    });
+                }
             }
         });
     }
@@ -875,6 +951,17 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
                             return new DelayedFile(CacheLoader.class, project, replacerCache.getUnchecked(key));
                         }
                     });
+    private LoadingCache<String, DelayedFile> optFileCache = CacheBuilder.newBuilder()
+            .weakValues()
+            .build(
+                    new CacheLoader<String, DelayedFile>() {
+                        public DelayedFile load(String key)
+                        {
+                            DelayedFile file = new DelayedFile(CacheLoader.class, project, replacerCache.getUnchecked(key));
+                            file.opt = true;
+                            return file;
+                        }
+                    });
 
     public DelayedString delayedString(String path)
     {
@@ -884,6 +971,11 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
     public DelayedFile delayedFile(String path)
     {
         return fileCache.getUnchecked(path);
+    }
+
+    public DelayedFile delayedFileOpt(String path)
+    {
+        return optFileCache.getUnchecked(path);
     }
 
     public DelayedFileTree delayedTree(String path)

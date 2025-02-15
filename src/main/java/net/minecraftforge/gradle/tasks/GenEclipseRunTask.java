@@ -1,6 +1,7 @@
 /*
  * A Gradle plugin for the creation of Minecraft mods and MinecraftForge plugins.
  * Copyright (C) 2013-2019 Minecraft Forge
+ * Copyright (C) 2020-2023 anatawa12 and other contributors
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -52,8 +53,8 @@ public class GenEclipseRunTask extends DefaultTask
     @Input           private Object projectName;
     @Input           private Object mainClass;
     @Input           private Object runDir;
-    @Input @Optional private Object runArgs;
-    @Input @Optional private Object jvmArgs;
+                     private Object runArgs;
+                     private Object jvmArgs;
     @OutputFile      private Object outputFile;
     //@formatter:on
 
@@ -107,6 +108,7 @@ public class GenEclipseRunTask extends DefaultTask
         this.projectName = projectName;
     }
 
+    @Input @Optional
     public String getArguments()
     {
         return Constants.resolveString(runArgs);
@@ -117,6 +119,7 @@ public class GenEclipseRunTask extends DefaultTask
         this.runArgs = arguments;
     }
 
+    @Input @Optional
     public String getJvmArguments()
     {
         return Constants.resolveString(jvmArgs);

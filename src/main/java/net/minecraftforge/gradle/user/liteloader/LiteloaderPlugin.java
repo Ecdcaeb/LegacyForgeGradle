@@ -1,6 +1,7 @@
 /*
  * A Gradle plugin for the creation of Minecraft mods and MinecraftForge plugins.
  * Copyright (C) 2013-2019 Minecraft Forge
+ * Copyright (C) 2020-2023 anatawa12 and other contributors
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,6 +23,7 @@ package net.minecraftforge.gradle.user.liteloader;
 import static net.minecraftforge.gradle.common.Constants.*;
 import static net.minecraftforge.gradle.user.UserConstants.*;
 
+import net.minecraftforge.gradle.ArchiveTaskHelper;
 import net.minecraftforge.gradle.user.UserVanillaBasePlugin;
 import net.minecraftforge.gradle.util.delayed.DelayedFile;
 import net.minecraftforge.gradle.util.json.JsonFactory;
@@ -50,7 +52,7 @@ public class LiteloaderPlugin extends UserVanillaBasePlugin<LiteloaderExtension>
     public static final String MODFILE_PREFIX = "mod-";
     public static final String MODFILE_EXTENSION = "litemod";
 
-    public static final String VERSION_JSON_URL = "http://dl.liteloader.com/versions/versions.json";
+    public static final String VERSION_JSON_URL = "https://dl.liteloader.com/versions/versions.json";
     public static final String VERSION_JSON_FILENAME = "versions.json";
     public static final String VERSION_JSON_FILE = REPLACE_CACHE_DIR + "/com/mumfrey/liteloader/" + VERSION_JSON_FILENAME;
 
@@ -82,11 +84,11 @@ public class LiteloaderPlugin extends UserVanillaBasePlugin<LiteloaderExtension>
 
         TaskContainer tasks = this.project.getTasks();
         final Jar jar = (Jar)tasks.getByName("jar");
-        jar.setExtension(MODFILE_EXTENSION);
-        jar.setBaseName(baseName);
+        ArchiveTaskHelper.setExtension(jar, MODFILE_EXTENSION);
+        ArchiveTaskHelper.setBaseName(jar, baseName);
 
         final Jar sourceJar = (Jar)tasks.getByName("sourceJar");
-        sourceJar.setBaseName(baseName);
+        ArchiveTaskHelper.setBaseName(sourceJar, baseName);
 
         makeTask(TASK_LITEMOD, LiteModTask.class);
     }
@@ -100,7 +102,7 @@ public class LiteloaderPlugin extends UserVanillaBasePlugin<LiteloaderExtension>
         // If user has changed extension back to .jar, write the ModType
         // manifest attribute
         final Jar jar = (Jar)this.project.getTasks().getByName("jar");
-        if ("jar".equals(jar.getExtension())) {
+        if ("jar".equals(ArchiveTaskHelper.getExtension(jar))) {
             Attributes attributes = jar.getManifest().getAttributes();
             if (attributes.get(MFATT_MODTYPE) == null) {
                 attributes.put(MFATT_MODTYPE, MODSYSTEM);
