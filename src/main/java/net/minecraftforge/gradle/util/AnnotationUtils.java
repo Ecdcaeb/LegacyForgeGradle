@@ -1,6 +1,7 @@
 /*
  * A Gradle plugin for the creation of Minecraft mods and MinecraftForge plugins.
  * Copyright (C) 2013-2019 Minecraft Forge
+ * Copyright (C) 2020-2023 anatawa12 and other contributors
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.jetbrains.org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;

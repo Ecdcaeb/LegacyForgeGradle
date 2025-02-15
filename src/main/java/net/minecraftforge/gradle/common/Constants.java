@@ -1,6 +1,7 @@
 /*
  * A Gradle plugin for the creation of Minecraft mods and MinecraftForge plugins.
  * Copyright (C) 2013-2019 Minecraft Forge
+ * Copyright (C) 2020-2023 anatawa12 and other contributors
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,46 +20,15 @@
  */
 package net.minecraftforge.gradle.common;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
-import java.io.StringReader;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
-import java.security.MessageDigest;
 import java.util.*;
-import java.util.Map.Entry;
-import java.util.concurrent.Callable;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
-import org.gradle.api.Project;
-import org.gradle.api.file.FileCollection;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 import com.google.common.base.Charsets;
-import com.google.common.collect.ImmutableList;
-import com.google.common.io.ByteStreams;
-import com.google.common.io.CharStreams;
-import com.google.common.io.Files;
 
-import au.com.bytecode.opencsv.CSVParser;
-import au.com.bytecode.opencsv.CSVReader;
 import groovy.lang.Closure;
-import net.minecraftforge.gradle.patcher.PatcherExtension;
 import net.minecraftforge.gradle.util.json.version.OS;
 
 public class Constants
@@ -117,13 +87,14 @@ public class Constants
 
     // urls
     public static final String URL_MC_MANIFEST     = "https://launchermeta.mojang.com/mc/game/version_manifest.json";
+    public static final String URL_FF              = "https://files.minecraftforge.net/fernflower-fix-1.0.zip";
     public static final String URL_ASSETS          = "https://resources.download.minecraft.net";
     public static final String URL_LIBRARY         = "https://libraries.minecraft.net/"; // Mojang's Cloudflare front end
     //public static final String URL_LIBRARY         = "https://minecraft-libraries.s3.amazonaws.com/"; // Mojang's AWS server, as Cloudflare is having issues, TODO: Switch back to above when their servers are fixed.
     public static final String URL_FORGE_MAVEN     = "https://maven.minecraftforge.net";
     public static final List<String> URLS_MCP_JSON = Arrays.asList(
             URL_FORGE_MAVEN + "/de/oceanlabs/mcp/versions.json",
-            "http://export.mcpbot.bspk.rs/versions.json"
+            "https://export.mcpbot.bspk.rs/versions.json"
     );
 
     // configs

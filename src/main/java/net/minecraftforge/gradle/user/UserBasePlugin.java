@@ -1,6 +1,7 @@
 /*
  * A Gradle plugin for the creation of Minecraft mods and MinecraftForge plugins.
  * Copyright (C) 2013-2019 Minecraft Forge
+ * Copyright (C) 2020-2023 anatawa12 and other contributors
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,6 +25,7 @@ import static net.minecraftforge.gradle.user.UserConstants.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,6 +42,8 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import net.minecraftforge.gradle.util.Utils;
+import net.minecraftforge.gradle.ArchiveTaskHelper;
+import net.minecraftforge.gradle.util.ReflectionUtil;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.NamedDomainObjectContainer;
@@ -61,11 +65,14 @@ import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileTreeElement;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
+import org.gradle.api.file.SourceDirectorySet;
+import org.gradle.api.internal.plugins.DslObject;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.*;
 import org.gradle.api.tasks.bundling.Jar;
+import org.gradle.api.tasks.compile.AbstractCompile;
 import org.gradle.api.tasks.compile.GroovyCompile;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.javadoc.Javadoc;
@@ -77,6 +84,10 @@ import org.gradle.plugins.ide.idea.model.IdeaModel;
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet;
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile;
 import org.w3c.dom.*;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
@@ -235,7 +246,7 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
         if (this.hasClientRun())
         {
             JavaExec exec = (JavaExec) project.getTasks().getByName("runClient");
-            exec.classpath(project.getConfigurations().getByName("runtime"));
+            exec.classpath(project.getConfigurations().getByName(CONFIG_RUNTIME_CLASSPATH));
             exec.classpath(project.getConfigurations().getByName(CONFIG_MC));
             exec.classpath(project.getConfigurations().getByName(CONFIG_MC_DEPS));
             exec.classpath(project.getConfigurations().getByName(CONFIG_START));
@@ -248,7 +259,7 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
         if (this.hasServerRun())
         {
             JavaExec exec = (JavaExec) project.getTasks().getByName("runServer");
-            exec.classpath(project.getConfigurations().getByName("runtime"));
+            exec.classpath(project.getConfigurations().getByName(CONFIG_RUNTIME_CLASSPATH));
             exec.classpath(project.getConfigurations().getByName(CONFIG_MC));
             exec.classpath(project.getConfigurations().getByName(CONFIG_MC_DEPS));
             exec.classpath(project.getConfigurations().getByName(CONFIG_START));
@@ -514,7 +525,7 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
         project.getConfigurations().getByName(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME).extendsFrom(project.getConfigurations().getByName(CONFIG_DC_RESOLVED));
         project.getConfigurations().getByName(CONFIG_PROVIDED).extendsFrom(project.getConfigurations().getByName(CONFIG_DP_RESOLVED));
         project.getConfigurations().getByName(api.getImplementationConfigurationName()).extendsFrom(project.getConfigurations().getByName(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME));
-        project.getConfigurations().getByName(JavaPlugin.TEST_IMPLEMENTATION_CONFIGURATION_NAME).extendsFrom(project.getConfigurations().getByName(JavaPlugin.API_CONFIGURATION_NAME));
+        project.getConfigurations().getByName(JavaPlugin.TEST_IMPLEMENTATION_CONFIGURATION_NAME).extendsFrom(project.getConfigurations().getByName("apiImplementation"));
 
         Javadoc javadoc = (Javadoc) project.getTasks().getByName(JavaPlugin.JAVADOC_TASK_NAME);
         javadoc.setClasspath(main.getOutput().plus(main.getCompileClasspath()));
@@ -600,12 +611,12 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
                     File dir = new File(dirRoot, "kotlin");
 
                     task = makeTask(taskPrefix+"Kotlin", TaskSourceCopy.class);
-                    task.setSource(langSet.getKotlin());
+                    task.setSource((SourceDirectorySet)ReflectionUtil.callMethod(langSet, "getKotlin"));
                     task.setOutput(dir);
 
                     // must get replacements from extension afterEValuate()
 
-                    KotlinCompile compile = (KotlinCompile) project.getTasks().getByName(set.getCompileTaskName("kotlin"));
+                    AbstractCompile compile = (AbstractCompile) project.getTasks().getByName(set.getCompileTaskName("kotlin"));
                     compile.dependsOn(task);
                     compile.setSource(dir);
                     Path dirPath = dir.toPath();
@@ -653,7 +664,7 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
                 return;
 
             // add maven repo
-            addMavenRepo(project, "deobfDeps", delayedFile(DIR_DEOBF_DEPS).call().getAbsoluteFile().toURI().getPath());
+            addMavenRepo(project, "deobfDeps", delayedFile(DIR_DEOBF_DEPS).call().getAbsoluteFile().toURI().getPath(), false);
 
             remapDeps(project, project.getConfigurations().getByName(CONFIG_DEOBF_COMPILE), CONFIG_DC_RESOLVED, compileDummy);
             remapDeps(project, project.getConfigurations().getByName(CONFIG_DEOBF_PROVIDED), CONFIG_DP_RESOLVED, providedDummy);
@@ -739,8 +750,9 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
     protected void doDepAtExtraction()
     {
         TaskExtractDepAts extract = makeTask(TASK_EXTRACT_DEP_ATS, TaskExtractDepAts.class);
-        extract.addCollection(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME);
+        extract.addCollection("compileClasspath");
         extract.addCollection(JavaPlugin.COMPILE_ONLY_CONFIGURATION_NAME);
+
         extract.addCollection(CONFIG_DEOBF_COMPILE);
         extract.addCollection(CONFIG_DEOBF_PROVIDED);
         extract.setOutputDir(delayedFile(DIR_DEP_ATS));
@@ -822,7 +834,6 @@ public abstract class UserBasePlugin<T extends UserBaseExtension> extends BasePl
         final String retromappedSrc = getSourceSetFormatted(main, TMPL_RETROMAPED_RPL);
         sourceJar.from(main.getOutput().getResourcesDir());
         Utils.setProperty(sourceJar.getArchiveClassifier(), "source");
-
         sourceJar.dependsOn(main.getCompileJavaTaskName(), main.getProcessResourcesTaskName(), getSourceSetFormatted(main, TMPL_TASK_RETROMAP_RPL));
 
         sourceJar.from(new Closure<Object>(UserBasePlugin.class) {

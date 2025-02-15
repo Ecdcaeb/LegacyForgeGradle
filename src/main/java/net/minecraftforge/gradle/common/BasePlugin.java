@@ -1,6 +1,7 @@
 /*
  * A Gradle plugin for the creation of Minecraft mods and MinecraftForge plugins.
  * Copyright (C) 2013-2019 Minecraft Forge
+ * Copyright (C) 2020-2023 anatawa12 and other contributors
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -31,11 +32,13 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import net.minecraftforge.gradle.util.Utils;
 import net.minecraftforge.gradle.util.json.version.ManifestVersion;
-import org.gradle.api.*;
+import org.gradle.api.Action;
+import org.gradle.api.DefaultTask;
+import org.gradle.api.Plugin;
+import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.Configuration.State;
@@ -46,7 +49,6 @@ import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 import org.gradle.api.plugins.ExtraPropertiesExtension;
 import org.gradle.api.tasks.Delete;
-import org.gradle.build.event.BuildEventsListenerRegistry;
 import org.gradle.testfixtures.ProjectBuilder;
 
 import com.google.common.base.Charsets;
@@ -62,6 +64,7 @@ import com.google.common.io.Files;
 import com.google.gson.reflect.TypeToken;
 
 import groovy.lang.Closure;
+import net.minecraftforge.gradle.GradleVersionUtils;
 import net.minecraftforge.gradle.tasks.CrowdinDownload;
 import net.minecraftforge.gradle.tasks.Download;
 import net.minecraftforge.gradle.tasks.DownloadAssetsTask;
@@ -166,10 +169,14 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
         }
 
         // repos
-        project.allprojects(proj -> {
-            addMavenRepo(proj, "forge", Constants.redirectURL(URL_FORGE_MAVEN));
-            proj.getRepositories().mavenCentral();
-            addMavenRepo(proj, "minecraft", Constants.redirectURL(URL_LIBRARY));
+        project.allprojects(new Action<Project>() {
+            public void execute(Project proj)
+            {
+                // / the forge's repository doesn't have pom file.
+                addMavenRepo(proj, "forge", URL_FORGE_MAVEN, false);
+                proj.getRepositories().mavenCentral();
+                addMavenRepo(proj, "minecraft", URL_LIBRARY);
+            }
         });
 
         // do Mcp Snapshots Stuff
@@ -189,12 +196,16 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
         project.getConfigurations().getByName(CONFIG_MC_DEPS).extendsFrom(project.getConfigurations().getByName(CONFIG_MC_DEPS_CLIENT));
 
         // after eval
-        project.afterEvaluate(project -> {
-            // dont continue if its already failed!
-            if (project.getState().getFailure() != null)
-                return;
+        project.afterEvaluate(new Action<Project>() {
+            @Override
+            public void execute(Project project)
+            {
+                // dont continue if its already failed!
+                if (project.getState().getFailure() != null)
+                    return;
 
-            afterEvaluate();
+                afterEvaluate();
+            }
         });
 
         // some default tasks
@@ -213,13 +224,13 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
         // MCP json
         File jsonCache = cacheFile("McpMappings.json");
         File etagFile = new File(jsonCache.getAbsolutePath() + ".etag");
-        String mcpJson = getWithEtag(URLS_MCP_JSON.stream().map(Constants::redirectURL).collect(Collectors.toList()), jsonCache, etagFile);
+        String mcpJson = getWithEtag(URLS_MCP_JSON, jsonCache, etagFile);
         getExtension().mcpJson = JsonFactory.GSON.fromJson(mcpJson, new TypeToken<Map<String, Map<String, int[]>>>() {}.getType());
 
         // MC manifest json
         jsonCache = cacheFile("McManifest.json");
         etagFile = new File(jsonCache.getAbsolutePath() + ".etag");
-        mcManifest = JsonFactory.GSON.fromJson(getWithEtag(Constants.redirectURL(URL_MC_MANIFEST), jsonCache, etagFile), new TypeToken<Map<String, ManifestVersion>>() {}.getType());
+        mcManifest = JsonFactory.GSON.fromJson(getWithEtag(URL_MC_MANIFEST, jsonCache, etagFile), new TypeToken<Map<String, ManifestVersion>>() {}.getType());
     }
 
     protected void afterEvaluate()
@@ -253,14 +264,13 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
             return;
 
         LOGGER.lifecycle("#################################################");
-        LOGGER.lifecycle("         LegacyForgeGradle  {}        ", this.getVersionString());
-        LOGGER.lifecycle("  https://github.com/Ecdcaeb/LegactForgeGradle/  ");
+        LOGGER.lifecycle("         ForgeGradle - Unoffical {}        ", this.getVersionString());
+        LOGGER.lifecycle("  https://github.com/Ecdcaeb/ForgeGradle/tree/FG_2.4  ");
         LOGGER.lifecycle("#################################################");
         LOGGER.lifecycle("                 Powered by MCP                  ");
         LOGGER.lifecycle("             http://modcoderpack.com             ");
         LOGGER.lifecycle("     by: Searge, ProfMobius, R4wk, ZeuX          ");
         LOGGER.lifecycle("     Fesh0r, IngisKahn, bspkrs, LexManos         ");
-        LOGGER.lifecycle("                   Hileb                         ");
         LOGGER.lifecycle("#################################################");
 
         displayBanner = false;
@@ -351,7 +361,13 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
         Configuration buildscriptClasspath = null;
         while (parent != null && fgDepTemp == null) {
             buildscriptClasspath = parent.getBuildscript().getConfigurations().getByName("classpath");
-            fgDepTemp = Iterables.getFirst(buildscriptClasspath.getDependencies().matching(element -> element.getName().equals(GROUP_FG)), null);
+            fgDepTemp = Iterables.getFirst(buildscriptClasspath.getDependencies().matching(new Spec<Dependency>() {
+                @Override
+                public boolean isSatisfiedBy(Dependency element)
+                {
+                    return element.getName().equals(GROUP_FG);
+                }
+            }), null);
             parent = parent.getParent();
         }
         final Dependency fgDep = fgDepTemp;
@@ -360,8 +376,14 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
             LOGGER.warn("Missing FG dep in buildscript classpath. Forking decompilation is likely to break.");
             return;
         }
-        // This adds all the dependencies of FG
-        deps.add(CONFIG_FFI_DEPS, project.files(Utils.getFilteredDependencyFiles(buildscriptClasspath.getIncoming(), fgDep.getGroup(), fgDep.getName(), fgDep.getVersion())));
+        // This adds all of the dependencies of FG
+        deps.add(CONFIG_FFI_DEPS, project.files(buildscriptClasspath.getResolvedConfiguration().getFiles(new Spec<Dependency>() {
+            @Override
+            public boolean isSatisfiedBy(Dependency element)
+            {
+                return element.contentEquals(fgDep);
+            }
+        })));
         // And this adds the groovy dep. FFI shouldn't need Gradle.
         deps.add(CONFIG_FFI_DEPS, deps.localGroovy());
     }
@@ -375,7 +397,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
                 @Override
                 public String call()
                 {
-                    return Constants.redirectURL(mcManifest.get(getExtension().getVersion()).url);
+                    return mcManifest.get(getExtension().getVersion()).url;
                 }
             });
             getVersionJson.setFile(delayedFile(JSON_VERSION));
@@ -437,7 +459,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
                 @Override
                 public String call()
                 {
-                    return Constants.redirectURL(mcVersionJson.assetIndex.url);
+                    return mcVersionJson.assetIndex.url;
                 }
             });
             getAssetsIndex.setFile(delayedFile(JSON_ASSET_INDEX));
@@ -459,7 +481,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
                 @Override
                 public String call()
                 {
-                    return Constants.redirectURL(mcVersionJson.getClientUrl());
+                    return mcVersionJson.getClientUrl();
                 }
             });
 
@@ -473,7 +495,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
                 @Override
                 public String call()
                 {
-                    return Constants.redirectURL(mcVersionJson.getServerUrl());
+                    return mcVersionJson.getServerUrl();
                 }
             });
 
@@ -583,12 +605,12 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
 
     public static <T extends Task> T maybeMakeTask(Project proj, String name, Class<T> type)
     {
-        return proj.getTasks().maybeCreate(name, type);
+        return (T) proj.getTasks().maybeCreate(name, type);
     }
 
     public static <T extends Task> T makeTask(Project proj, String name, Class<T> type)
     {
-        return proj.getTasks().create(name, type);
+        return (T) proj.getTasks().create(name, type);
     }
 
     public static Project buildProject(File buildFile, Project parent)
@@ -625,17 +647,25 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
 
     public MavenArtifactRepository addMavenRepo(Project proj, final String name, final String url)
     {
-        return proj.getRepositories().maven(repo -> {
-            repo.setName(name);
-            repo.setUrl(url);
+        return proj.getRepositories().maven(new Action<MavenArtifactRepository>() {
+            @Override
+            public void execute(MavenArtifactRepository repo)
+            {
+                repo.setName(name);
+                repo.setUrl(url);
+            }
         });
     }
 
     public FlatDirectoryArtifactRepository addFlatRepo(Project proj, final String name, final Object... dirs)
     {
-        return proj.getRepositories().flatDir(repo -> {
-            repo.setName(name);
-            repo.dirs(dirs);
+        return proj.getRepositories().flatDir(new Action<FlatDirectoryArtifactRepository>() {
+            @Override
+            public void execute(FlatDirectoryArtifactRepository repo)
+            {
+                repo.setName(name);
+                repo.dirs(dirs);
+            }
         });
     }
 
@@ -651,16 +681,16 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
             try
             {
                 if (project.getGradle().getStartParameter().isOffline()) // dont even try the internet
-                    return Files.asCharSource(cache, Charsets.UTF_8).read();
+                    return Files.toString(cache, Charsets.UTF_8);
 
                 // dude, its been less than 1 minute since the last time..
                 if (cache.exists() && cache.lastModified() + 60000 >= System.currentTimeMillis())
-                    return Files.asCharSource(cache, Charsets.UTF_8).read();
+                    return Files.toString(cache, Charsets.UTF_8);
 
                 String etag;
                 if (etagFile.exists())
                 {
-                    etag = Files.asCharSource(etagFile, Charsets.UTF_8).read();
+                    etag = Files.toString(etagFile, Charsets.UTF_8);
                 }
                 else
                 {
@@ -686,7 +716,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
                 {
                     // the existing file is good
                     Files.touch(cache); // touch it to update last-modified time, to wait another minute
-                    return Files.asCharSource(cache, Charsets.UTF_8).read();
+                    return Files.toString(cache, Charsets.UTF_8);
                 }
                 else if (con.getResponseCode() == 200)
                 {
@@ -705,21 +735,21 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
                     }
                     else
                     {
-                        Files.asCharSink(etagFile, Charsets.UTF_8).write(etag);
+                        Files.write(etag, etagFile, Charsets.UTF_8);
                     }
 
                     return new String(data);
                 }
                 else
                 {
-                    LOGGER.error("Etag download for {} failed with code {}", strUrl, con.getResponseCode());
+                    LOGGER.error("Etag download for " + strUrl + " failed with code " + con.getResponseCode());
                 }
 
                 con.disconnect();
             }
             catch (Exception e)
             {
-                LOGGER.error("[getWithEtag]", e);
+                e.printStackTrace();
             }
         }
 
@@ -727,7 +757,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
         {
             try
             {
-                return Files.asCharSource(cache, Charsets.UTF_8).read();
+                return Files.toString(cache, Charsets.UTF_8);
             }
             catch (IOException e)
             {
@@ -762,7 +792,7 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
             }
             catch (IOException e)
             {
-                LOGGER.error("{} could not be parsed", file);
+                LOGGER.error("" + file + " could not be parsed");
                 throw new RuntimeException(e);
             }
         }
@@ -820,32 +850,29 @@ public abstract class BasePlugin<K extends BaseExtension> implements Plugin<Proj
     }
 
     // DELAYED STUFF ONLY ------------------------------------------------------------------------
-    private final LoadingCache<String, TokenReplacer> replacerCache = CacheBuilder.newBuilder()
+    private LoadingCache<String, TokenReplacer> replacerCache = CacheBuilder.newBuilder()
             .weakValues()
             .build(
                     new CacheLoader<String, TokenReplacer>() {
-                        @NotNull
-                        public TokenReplacer load(@NotNull String key)
+                        public TokenReplacer load(String key)
                         {
                             return new TokenReplacer(replacer, key);
                         }
                     });
-    private final LoadingCache<String, DelayedString> stringCache = CacheBuilder.newBuilder()
+    private LoadingCache<String, DelayedString> stringCache = CacheBuilder.newBuilder()
             .weakValues()
             .build(
                     new CacheLoader<String, DelayedString>() {
-                        @NotNull
-                        public DelayedString load(@NotNull String key)
+                        public DelayedString load(String key)
                         {
                             return new DelayedString(CacheLoader.class, replacerCache.getUnchecked(key));
                         }
                     });
-    private final LoadingCache<String, DelayedFile> fileCache = CacheBuilder.newBuilder()
+    private LoadingCache<String, DelayedFile> fileCache = CacheBuilder.newBuilder()
             .weakValues()
             .build(
                     new CacheLoader<String, DelayedFile>() {
-                        @NotNull
-                        public DelayedFile load(@NotNull String key)
+                        public DelayedFile load(String key)
                         {
                             return new DelayedFile(CacheLoader.class, project, replacerCache.getUnchecked(key));
                         }

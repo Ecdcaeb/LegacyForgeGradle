@@ -1,6 +1,7 @@
 /*
  * A Gradle plugin for the creation of Minecraft mods and MinecraftForge plugins.
  * Copyright (C) 2013-2019 Minecraft Forge
+ * Copyright (C) 2020-2023 anatawa12 and other contributors
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -30,11 +31,12 @@ import org.gradle.api.Project;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class LiteModJson
+public class LiteModJson implements Serializable
 {
     public static class Description extends HashMap<String, Object>
     {
@@ -87,6 +89,8 @@ public class LiteModJson
             }
         }
     }
+
+    private static final long serialVersionUID = 1;
 
     public String name, displayName, version, author;
     public String mcversion, revision;

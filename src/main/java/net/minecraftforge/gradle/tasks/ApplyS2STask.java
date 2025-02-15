@@ -1,6 +1,7 @@
 /*
  * A Gradle plugin for the creation of Minecraft mods and MinecraftForge plugins.
  * Copyright (C) 2013-2019 Minecraft Forge
+ * Copyright (C) 2020-2023 anatawa12 and other contributors
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -51,6 +52,7 @@ import com.google.common.io.Files;
 
 public class ApplyS2STask extends DefaultTask
 {
+
     @InputFiles
     private final List<Object> srg = new LinkedList<>();
 
@@ -340,6 +342,7 @@ public class ApplyS2STask extends DefaultTask
             return getProject().files(outFile);
     }
 
+    @OutputFile
     public File getOut()
     {
         return getProject().file(out);
@@ -350,6 +353,7 @@ public class ApplyS2STask extends DefaultTask
         this.out = out;
     }
 
+    @InputFiles
     public FileCollection getSrgs()
     {
         return getProject().files(srg);
@@ -370,6 +374,7 @@ public class ApplyS2STask extends DefaultTask
         this.srg.add(srg);
     }
 
+    @InputFiles
     public FileCollection getExcs()
     {
         return getProject().files(exc);

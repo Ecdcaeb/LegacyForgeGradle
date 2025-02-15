@@ -1,6 +1,7 @@
 /*
  * A Gradle plugin for the creation of Minecraft mods and MinecraftForge plugins.
  * Copyright (C) 2013-2019 Minecraft Forge
+ * Copyright (C) 2020-2023 anatawa12 and other contributors
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -31,12 +32,16 @@ import java.util.jar.JarOutputStream;
 import net.minecraftforge.gradle.util.caching.Cached;
 import net.minecraftforge.gradle.util.caching.CachedTask;
 
+import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTreeElement;
 import org.gradle.api.file.FileVisitDetails;
 import org.gradle.api.file.FileVisitor;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
+import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.util.PatternFilterable;
@@ -117,6 +122,11 @@ public class SplitJarTask extends CachedTask implements PatternFilterable
         }
     }
 
+    @InputFiles
+    public Provider<FileCollection> getInputFiles() {
+        return getProject().provider(() -> getProject().zipTree(getInJar()).matching(pattern));
+    }
+
     public File getInJar()
     {
         return getProject().file(inJar);
@@ -176,6 +186,7 @@ public class SplitJarTask extends CachedTask implements PatternFilterable
     }
 
     @NotNull
+    @Internal
     @Override
     public Set<String> getExcludes()
     {
@@ -183,6 +194,7 @@ public class SplitJarTask extends CachedTask implements PatternFilterable
     }
 
     @NotNull
+    @Internal
     @Override
     public Set<String> getIncludes()
     {

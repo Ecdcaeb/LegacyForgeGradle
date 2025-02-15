@@ -1,6 +1,7 @@
 /*
  * A Gradle plugin for the creation of Minecraft mods and MinecraftForge plugins.
  * Copyright (C) 2013-2019 Minecraft Forge
+ * Copyright (C) 2020-2023 anatawa12 and other contributors
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -60,7 +61,7 @@ public class FileLogListener implements StandardOutputListener, BuildListener
             LOGGER.error("Error when processing file ", e);
         }
     }
-    
+
     @Override
     public void projectsLoaded(@NotNull Gradle arg0) {}
 
@@ -92,7 +93,7 @@ public class FileLogListener implements StandardOutputListener, BuildListener
 
     @Override
     public void projectsEvaluated(@NotNull Gradle arg0) { }  // nothing
-    
+
     @Override
     public void settingsEvaluated(@NotNull Settings arg0) { } // nothing
 

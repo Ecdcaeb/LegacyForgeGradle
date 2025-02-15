@@ -1,6 +1,7 @@
 /*
  * A Gradle plugin for the creation of Minecraft mods and MinecraftForge plugins.
  * Copyright (C) 2013-2019 Minecraft Forge
+ * Copyright (C) 2020-2023 anatawa12 and other contributors
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -46,7 +47,7 @@ public abstract class UserVanillaBasePlugin<T extends UserBaseExtension> extends
         createDecompTasks(CLEAN_ROOT + jarName + "/" + REPLACE_MC_VERSION + "/" + MCP_INSERT + "/" + jarName + cleanSuffix, DIR_LOCAL_CACHE + "/" + jarName + dirtySuffix);
 
         // remove the unused merge jars task
-        project.getTasks().remove(project.getTasks().getByName(TASK_MERGE_JARS));
+        project.getTasks().getByName(TASK_MERGE_JARS).setEnabled(false);
 
         // add version json task to CI and dev workspace tasks
         project.getTasks().getByName(TASK_SETUP_CI).dependsOn(Constants.TASK_DL_VERSION_JSON);

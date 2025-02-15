@@ -1,6 +1,7 @@
 /*
  * A Gradle plugin for the creation of Minecraft mods and MinecraftForge plugins.
  * Copyright (C) 2013-2019 Minecraft Forge
+ * Copyright (C) 2020-2023 anatawa12 and other contributors
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -20,6 +21,7 @@
 package net.minecraftforge.gradle.user.liteloader;
 
 import com.google.common.base.Strings;
+import net.minecraftforge.gradle.ArchiveTaskHelper;
 import net.minecraftforge.gradle.user.UserBaseExtension;
 import net.minecraftforge.gradle.util.Utils;
 import org.gradle.api.InvalidUserDataException;
@@ -28,19 +30,19 @@ import org.gradle.jvm.tasks.Jar;
 public class LiteloaderExtension extends UserBaseExtension
 {
     private final LiteloaderPlugin plugin;
-    
+
     public LiteloaderExtension(LiteloaderPlugin plugin)
     {
         super(plugin);
         this.plugin = plugin;
     }
-    
+
     @Override
     public void setVersion(String version)
     {
         super.setVersion(version);
         this.checkVersion(version);
-        
+
         Jar jar = (Jar)project.getTasks().getByName("jar");
         if (Strings.isNullOrEmpty(jar.getArchiveClassifier().getOrNull())) {
             Utils.setProperty(jar.getArchiveClassifier(), "mc" + version);

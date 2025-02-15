@@ -1,6 +1,7 @@
 /*
  * A Gradle plugin for the creation of Minecraft mods and MinecraftForge plugins.
  * Copyright (C) 2013-2019 Minecraft Forge
+ * Copyright (C) 2020-2023 anatawa12 and other contributors
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -95,8 +96,7 @@ public class ForgeExtension extends UserBaseExtension
     private static final Pattern STANDARD = Pattern.compile(JUST_MC + "-" + JUST_API);
     private static final Logger  LOGGER   = Logging.getLogger(ForgeExtension.class);
 
-    private void checkAndSetVersion(String str)
-    {
+    private void checkAndSetVersion(String str) {
         str = str.trim();
         if (str.indexOf(':') != -1) {
             this.forgeVersion = ArtifactInfo.fromString(str);
@@ -134,7 +134,7 @@ public class ForgeExtension extends UserBaseExtension
              *     Output: 1.8-11.14.4.1563
              *   Solution:
              *     Again, Abrar downloaded a 2MB MASSIVE json file, when a slim json would do.
-             *     https://maven.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json
+             *     https://files.minecraftforge.net/maven/net/minecraftforge/forge/promotions_slim.json
              *
              *
              * API-Wildcards:

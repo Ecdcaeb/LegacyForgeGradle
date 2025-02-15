@@ -1,6 +1,7 @@
 /*
  * A Gradle plugin for the creation of Minecraft mods and MinecraftForge plugins.
  * Copyright (C) 2013-2019 Minecraft Forge
+ * Copyright (C) 2020-2023 anatawa12 and other contributors
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -43,6 +44,7 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputDirectory;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
 
 import com.cloudbees.diff.PatchException;
@@ -339,7 +341,7 @@ public class PatchSourcesTask extends AbstractEditJarTask
 
     @Optional
     @InputDirectory
-    private File getPatchesDir()
+    public File getPatchesDir()
     {
         File patch = getPatches();
         if (patch.isDirectory())
@@ -350,7 +352,7 @@ public class PatchSourcesTask extends AbstractEditJarTask
 
     @Optional
     @InputFile
-    private File getPatchesZip()
+    public File getPatchesZip()
     {
         File patch = getPatches();
         if (patch.isDirectory())
@@ -359,6 +361,7 @@ public class PatchSourcesTask extends AbstractEditJarTask
             return getPatches();
     }
 
+    @Internal
     public File getPatches()
     {
         return getProject().file(patches);

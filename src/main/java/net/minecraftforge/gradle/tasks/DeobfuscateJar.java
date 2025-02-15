@@ -1,6 +1,7 @@
 /*
  * A Gradle plugin for the creation of Minecraft mods and MinecraftForge plugins.
  * Copyright (C) 2013-2019 Minecraft Forge
+ * Copyright (C) 2020-2023 anatawa12 and other contributors
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -35,6 +36,7 @@ import org.gradle.api.file.FileCollection;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
@@ -384,6 +386,7 @@ public class DeobfuscateJar extends CachedTask
         this.inJar = inJar;
     }
 
+    @Internal
     public File getLog()
     {
         if (log == null)
@@ -428,6 +431,7 @@ public class DeobfuscateJar extends CachedTask
      * Unlike getOutputJar() this method does not resolve the files.
      * @return Object that will resolve to
      */
+    @Internal
     @SuppressWarnings("serial")
     public Closure<File> getDelayedOutput()
     {

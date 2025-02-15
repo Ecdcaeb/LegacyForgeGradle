@@ -1,6 +1,7 @@
 /*
  * A Gradle plugin for the creation of Minecraft mods and MinecraftForge plugins.
  * Copyright (C) 2013-2019 Minecraft Forge
+ * Copyright (C) 2020-2023 anatawa12 and other contributors
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -27,6 +28,7 @@ import net.minecraftforge.gradle.util.caching.CachedTask;
 import org.codehaus.groovy.runtime.ResourceGroovyMethods;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.tasks.InputFile;
+import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecResult;
@@ -160,6 +162,7 @@ public class ApplyFernFlowerTask extends CachedTask {
         this.outJar = outJar;
     }
 
+    @InputFiles
     public FileCollection getClasspath()
     {
         return classpath;
@@ -170,6 +173,7 @@ public class ApplyFernFlowerTask extends CachedTask {
         this.classpath = classpath;
     }
 
+    @InputFiles
     public FileCollection getForkedClasspath()
     {
         return forkedClasspath;

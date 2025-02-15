@@ -1,6 +1,7 @@
 /*
  * A Gradle plugin for the creation of Minecraft mods and MinecraftForge plugins.
  * Copyright (C) 2013-2019 Minecraft Forge
+ * Copyright (C) 2020-2023 anatawa12 and other contributors
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,6 +23,8 @@ package net.minecraftforge.gradle.user;
 import java.io.File;
 import java.util.List;
 
+import net.minecraftforge.gradle.ArchiveTaskHelper;
+import org.gradle.api.Action;
 import org.gradle.api.NamedDomainObjectFactory;
 import org.gradle.api.Task;
 import org.gradle.api.file.FileCollection;
