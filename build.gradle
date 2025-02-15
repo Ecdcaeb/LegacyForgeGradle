@@ -18,7 +18,7 @@ apply plugin: 'maven-publish'
 apply plugin: "com.gradle.plugin-publish"
 
 group = 'io.github.ecdcaeb'
-version = '0.3.4'
+version = '0.3.7'
 archivesBaseName = 'LegacyForgeGradle'
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(8)
@@ -300,37 +300,6 @@ artifacts {
 test {
     if (project.hasProperty("filesmaven")) // disable this test when on the forge jenkins
         exclude "**/ExtensionMcpMappingTest*"
-}
-
-pluginBundle {
-    website = 'http://www.gradle.org/'
-    vcsUrl = 'https://github.com/MinecraftForge/ForgeGradle'
-    description = 'Gradle plugin for all Minecraft mod development needs'
-    tags = ['forge', 'minecraft', 'minecraftforge', 'sponge', 'mcp']
-
-    plugins {
-        patcher {
-            id = 'net.minecraftforge.gradle.patcher'
-            displayName = 'Minicraft Patcher Plugin'
-        }
-        tweakerClient {
-            id = 'net.minecraftforge.gradle.tweaker-client'
-            displayName = 'Mincraft Client Tweaker Plugin'
-        }
-        tweakerServer {
-            id = 'net.minecraftforge.gradle.tweaker-server'
-            displayName = 'Mincraft Server Tweaker Plugin'
-        }
-        forge {
-            id = 'net.minecraftforge.gradle.forge'
-            displayName = 'MincraftForge Mod Development Plugin'
-        }
-
-        launch4j {
-            id = 'net.minecraftforge.gradle.launch4j'
-            displayName = 'Specialized Launch4J Gradle Plugin'
-        }
-    }
 }
 
 // write out version so its convenient for doc deployment
