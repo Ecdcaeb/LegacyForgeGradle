@@ -106,7 +106,7 @@ dependencies {
     }
 
     compileOnly 'org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.10'
-    testImplementation 'junit:junit:4.13.1'
+    testImplementation 'junit:junit:4.13.2'
 }
 
 sourceSets {
