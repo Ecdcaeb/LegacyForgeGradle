@@ -82,7 +82,7 @@ dependencies {
     implementation 'com.github.tony19:named-regexp:1.0.0' // 1.7 Named regexp features
     implementation 'net.minecraftforge:forgeflower:1.0.342-SNAPSHOT' // Fernflower Forge edition
 
-    shade 'net.md-5:SpecialSource:1.8.2' // deobf and reobf
+    shade 'net.md-5:SpecialSource:1.11.4' // deobf and reobf
 
     // because curse
     implementation 'org.apache.httpcomponents:httpclient:4.5.13'
